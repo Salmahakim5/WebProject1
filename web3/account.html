@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page account-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel account-panel">
+        <h1>My Account</h1>
+        <p class="subtitle">Manage your profile and your uploaded recipes.</p>
+
+        <section class="account-top">
+            <img id="account-photo-preview" class="profile-photo-preview hidden" alt="Profile photo">
+            <div id="account-photo-fallback" class="profile-photo-fallback" aria-hidden="true">&#128100;</div>
+            <div>
+                <p id="account-name" class="account-name">User</p>
+                <p id="account-email" class="subtitle">No email</p>
+            </div>
+        </section>
+
+        <form id="account-form">
+            <label for="account-fullname">Full Name</label>
+            <input id="account-fullname" type="text" placeholder="Your full name" required>
+
+            <label for="account-photo">Profile Photo</label>
+            <input id="account-photo" type="file" accept="image/*">
+
+            <button type="submit">Save Profile</button>
+        </form>
+
+        <div class="account-actions">
+            <a class="account-action-card" href="upload-recipe.html">
+                <span class="account-action-icon">&#10133;</span>
+                <strong>Upload a Recipe</strong>
+                <p class="subtitle">Share your own recipe and image.</p>
+            </a>
+            <a class="account-action-card" href="clickncook.html">
+                <span class="account-action-icon">&#127859;</span>
+                <strong>Explore Recipes</strong>
+                <p class="subtitle">Find and cook something new.</p>
+            </a>
+        </div>
+
+        <section>
+            <h2>Your Uploaded Recipes</h2>
+            <div id="uploaded-recipes-list" class="uploaded-list"></div>
+            <p id="empty-uploaded-recipes" class="upload-help">No recipes uploaded yet.</p>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const accountName = document.getElementById("account-name");
+        const accountEmail = document.getElementById("account-email");
+        const accountFullnameInput = document.getElementById("account-fullname");
+        const accountPhotoInput = document.getElementById("account-photo");
+        const accountPhotoPreview = document.getElementById("account-photo-preview");
+        const accountPhotoFallback = document.getElementById("account-photo-fallback");
+        const accountForm = document.getElementById("account-form");
+        const uploadedRecipesList = document.getElementById("uploaded-recipes-list");
+        const emptyUploadedRecipes = document.getElementById("empty-uploaded-recipes");
+
+        function getUsers() {
+            try {
+                return JSON.parse(localStorage.getItem("rrUsers")) || {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem("rrUsers", JSON.stringify(users));
+        }
+
+        function getCurrentUserData() {
+            const users = getUsers();
+            const email = (localStorage.getItem("currentUserEmail") || "").toLowerCase();
+            if (!email || !users[email]) {
+                return null;
+            }
+            return {
+                email: email,
+                user: users[email]
+            };
+        }
+
+        function getFirstName(fullName) {
+            return (fullName || "User").trim().split(/\s+/)[0] || "User";
+        }
+
+        function applyProfileUI(userEmail, user) {
+            const fullName = user.fullName || "User";
+            accountName.textContent = fullName;
+            accountEmail.textContent = userEmail;
+            accountFullnameInput.value = fullName;
+            brandName.textContent = getFirstName(fullName);
+
+            if (user.photo) {
+                accountPhotoPreview.src = user.photo;
+                accountPhotoPreview.classList.remove("hidden");
+                accountPhotoFallback.classList.add("hidden");
+            } else {
+                accountPhotoPreview.removeAttribute("src");
+                accountPhotoPreview.classList.add("hidden");
+                accountPhotoFallback.classList.remove("hidden");
+            }
+        }
+
+        function escapeHtml(text) {
+            return String(text || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderUploadedRecipes(recipes) {
+            uploadedRecipesList.innerHTML = "";
+            if (!Array.isArray(recipes) || recipes.length === 0) {
+                emptyUploadedRecipes.classList.remove("hidden");
+                return;
+            }
+
+            emptyUploadedRecipes.classList.add("hidden");
+            recipes.forEach(function (recipe) {
+                const card = document.createElement("article");
+                card.className = "uploaded-item";
+
+                const title = escapeHtml(recipe.title || "Untitled Recipe");
+                const category = escapeHtml(recipe.category || "General");
+                const subcategory = escapeHtml(recipe.subcategory || "");
+                const ingredients = escapeHtml(recipe.ingredients || "");
+                const steps = escapeHtml(recipe.steps || "");
+                const imageMarkup = recipe.photo
+                    ? '<img class="uploaded-photo" src="' + escapeHtml(recipe.photo) + '" alt="' + title + '">'
+                    : "";
+                const subcategoryLine = subcategory
+                    ? "<p><strong>Subcategory:</strong> " + subcategory + "</p>"
+                    : "";
+
+                card.innerHTML = ""
+                    + "<h3>" + title + "</h3>"
+                    + "<p><strong>Category:</strong> " + category + "</p>"
+                    + subcategoryLine
+                    + "<p><strong>Ingredients:</strong> " + ingredients + "</p>"
+                    + "<p><strong>Steps:</strong> " + steps + "</p>"
+                    + imageMarkup;
+
+                uploadedRecipesList.appendChild(card);
+            });
+        }
+
+        const current = getCurrentUserData();
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        if (!isLoggedIn || !current) {
+            window.location.href = "login.html";
+        } else {
+            applyProfileUI(current.email, current.user);
+            renderUploadedRecipes(current.user.recipes || []);
+        }
+
+        accountForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const currentAccount = getCurrentUserData();
+            if (!currentAccount) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const users = getUsers();
+            const nextFullName = accountFullnameInput.value.trim() || "User";
+            users[currentAccount.email].fullName = nextFullName;
+
+            const selectedFile = accountPhotoInput.files && accountPhotoInput.files[0];
+            if (!selectedFile) {
+                saveUsers(users);
+                localStorage.setItem("username", getFirstName(nextFullName));
+                applyProfileUI(currentAccount.email, users[currentAccount.email]);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (loadEvent) {
+                users[currentAccount.email].photo = String(loadEvent.target.result || "");
+                saveUsers(users);
+                localStorage.setItem("username", getFirstName(nextFullName));
+                applyProfileUI(currentAccount.email, users[currentAccount.email]);
+                accountPhotoInput.value = "";
+            };
+            reader.readAsDataURL(selectedFile);
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

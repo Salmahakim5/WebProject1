@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookies | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page dessert-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel cake-panel">
+        <h1>Cookie Recipes</h1>
+        <p class="subtitle">Choose a cookie type to show its ingredients (grams) and recipe steps.</p>
+
+        <section class="cake-type-list" aria-label="Cookie types">
+            <button type="button" class="cake-type-btn cookie-type-btn" data-cookie="chocolateChip"><span>Chocolate Chip Cookies</span></button>
+            <button type="button" class="cake-type-btn cookie-type-btn" data-cookie="oatmealRaisin"><span>Oatmeal Raisin Cookies</span></button>
+            <button type="button" class="cake-type-btn cookie-type-btn" data-cookie="peanutButter"><span>Peanut Butter Cookies</span></button>
+        </section>
+
+        <section id="cookie-details" class="dessert-card hidden">
+            <h2 id="cookie-name"></h2>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul id="cookie-ingredients" class="ingredients-list"></ul>
+
+            <h3 class="recipe-steps-title">Recipe Steps</h3>
+            <ol id="cookie-steps" class="recipe-steps"></ol>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        const cookieButtons = document.querySelectorAll(".cookie-type-btn");
+        const cookieDetails = document.getElementById("cookie-details");
+        const cookieName = document.getElementById("cookie-name");
+        const cookieIngredients = document.getElementById("cookie-ingredients");
+        const cookieSteps = document.getElementById("cookie-steps");
+
+        const cookieData = {
+            chocolateChip: {
+                name: "Chocolate Chip Cookies",
+                photo: "chocolatecookies.jpeg",
+                ingredients: [
+                    "220 g all-purpose flour",
+                    "170 g butter, softened",
+                    "160 g brown sugar",
+                    "70 g white sugar",
+                    "1 egg (about 50 g)",
+                    "5 g vanilla extract",
+                    "5 g baking soda",
+                    "2 g salt",
+                    "180 g chocolate chips"
+                ],
+                steps: [
+                    "Preheat oven to 175 C and line a tray with baking paper.",
+                    "Cream butter with both sugars until fluffy.",
+                    "Mix in egg and vanilla.",
+                    "Add flour, baking soda, and salt and mix until combined.",
+                    "Fold in chocolate chips and scoop dough onto tray.",
+                    "Bake for 10 to 12 minutes until edges are golden."
+                ]
+            },
+            oatmealRaisin: {
+                name: "Oatmeal Raisin Cookies",
+                photo: "oatmealcookies.jpeg",
+                ingredients: [
+                    "180 g all-purpose flour",
+                    "160 g rolled oats",
+                    "170 g butter, softened",
+                    "140 g brown sugar",
+                    "1 egg (about 50 g)",
+                    "4 g cinnamon",
+                    "5 g baking soda",
+                    "2 g salt",
+                    "120 g raisins"
+                ],
+                steps: [
+                    "Preheat oven to 175 C and prepare a lined baking tray.",
+                    "Cream butter and brown sugar until smooth.",
+                    "Beat in egg.",
+                    "Mix flour, oats, cinnamon, baking soda, and salt into the dough.",
+                    "Fold in raisins and shape into small balls.",
+                    "Bake for 11 to 13 minutes and cool on a rack."
+                ]
+            },
+            peanutButter: {
+                name: "Peanut Butter Cookies",
+                photo: "peanutcookies.jpeg",
+                ingredients: [
+                    "200 g creamy peanut butter",
+                    "120 g butter, softened",
+                    "150 g sugar",
+                    "1 egg (about 50 g)",
+                    "180 g all-purpose flour",
+                    "5 g baking powder",
+                    "2 g salt",
+                    "5 g vanilla extract"
+                ],
+                steps: [
+                    "Preheat oven to 180 C and line a baking tray.",
+                    "Beat peanut butter, butter, and sugar until creamy.",
+                    "Add egg and vanilla and mix well.",
+                    "Stir in flour, baking powder, and salt.",
+                    "Shape dough balls and press lightly with a fork pattern.",
+                    "Bake for 10 to 12 minutes and let cool."
+                ]
+            }
+        };
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        function openRecipePage(cookieKey) {
+            const selectedCookie = cookieData[cookieKey];
+            if (!selectedCookie) {
+                return;
+            }
+            const params = new URLSearchParams();
+            params.set("title", selectedCookie.name);
+            params.set("category", "Cookies");
+            params.set("ingredients", JSON.stringify(selectedCookie.ingredients || []));
+            params.set("steps", JSON.stringify(selectedCookie.steps || []));
+            if (selectedCookie.photo) {
+                params.set("photo", selectedCookie.photo);
+            }
+            params.set("back", "cookies.html");
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        cookieButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                openRecipePage(button.dataset.cookie);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

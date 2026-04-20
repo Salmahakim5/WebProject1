@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasta & Rice Recipes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page pasta-rice-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="maindishes.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel pasta-rice-panel">
+        <h1 id="page-title">Pasta & Rice Categories</h1>
+        <p class="subtitle" id="page-subtitle">Choose a category, then open a recipe card.</p>
+        <a class="action-link" href="maindishes.html">Back to Main Dishes</a>
+
+        <section id="category-picker" class="dessert-icon-grid">
+            <button type="button" class="dessert-icon-btn" data-category="pastaCreamy">
+                <span class="dessert-icon" aria-hidden="true">&#127837;</span>
+                <span class="dessert-label">Creamy Pasta</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="pastaTomato">
+                <span class="dessert-icon" aria-hidden="true">&#127813;</span>
+                <span class="dessert-label">Tomato Pasta</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="riceFried">
+                <span class="dessert-icon" aria-hidden="true">&#127834;</span>
+                <span class="dessert-label">Fried Rice</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="riceBowls">
+                <span class="dessert-icon" aria-hidden="true">&#129379;</span>
+                <span class="dessert-label">Rice Bowls</span>
+            </button>
+        </section>
+
+        <a id="back-to-categories" class="action-link hidden" href="pastarice.html">Back to Pasta & Rice Categories</a>
+        <section id="recipe-grid" class="category-grid hidden"></section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const pageTitle = document.getElementById("page-title");
+        const pageSubtitle = document.getElementById("page-subtitle");
+        const categoryPicker = document.getElementById("category-picker");
+        const backToCategories = document.getElementById("back-to-categories");
+        const recipeGrid = document.getElementById("recipe-grid");
+        const categoryButtons = document.querySelectorAll("#category-picker .dessert-icon-btn");
+
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryKey = urlParams.get("category");
+
+        const pastaRiceData = {
+            pastaCreamy: {
+                label: "Creamy Pasta",
+                recipes: {
+                    "Creamy Mushroom Pasta": {
+                        photo: "creamypasta.jpeg",
+                        description: "Creamy pasta with sauteed mushrooms and parmesan.",
+                        ingredients: [
+                            "250 g pasta",
+                            "200 g mushrooms",
+                            "200 ml cooking cream",
+                            "10 g garlic",
+                            "40 g parmesan"
+                        ],
+                        steps: [
+                            "Boil pasta until al dente and reserve some pasta water.",
+                            "Saute garlic and mushrooms until lightly golden.",
+                            "Add cream and parmesan, then simmer for 2 to 3 minutes.",
+                            "Toss pasta in sauce and adjust consistency with pasta water."
+                        ]
+                    },
+                    "Chicken Alfredo": {
+                        photo: "alfredo.jpeg",
+                        description: "Classic alfredo pasta with seasoned chicken.",
+                        ingredients: [
+                            "250 g pasta",
+                            "200 g chicken breast",
+                            "180 ml cream",
+                            "10 g garlic",
+                            "40 g parmesan"
+                        ],
+                        steps: [
+                            "Cook pasta until al dente and set aside.",
+                            "Season and pan-sear chicken, then slice.",
+                            "Cook garlic in a little butter, add cream and parmesan.",
+                            "Mix pasta and chicken into sauce, then serve hot."
+                        ]
+                    }
+                }
+            },
+            pastaTomato: {
+                label: "Tomato Pasta",
+                recipes: {
+                    "Classic Marinara Pasta": {
+                        photo: "marinara.jpeg",
+                        description: "Simple marinara pasta with garlic and basil.",
+                        ingredients: [
+                            "250 g pasta",
+                            "220 ml tomato sauce",
+                            "10 g garlic",
+                            "20 ml olive oil",
+                            "8 g basil"
+                        ],
+                        steps: [
+                            "Cook pasta and keep it slightly firm.",
+                            "Heat olive oil, saute garlic, then add tomato sauce.",
+                            "Simmer sauce for 5 minutes and season well.",
+                            "Add pasta, toss with basil, and serve."
+                        ]
+                    },
+                    "Spicy Arrabbiata": {
+                        photo: "spicy.jpeg",
+                        description: "Spicy tomato pasta with garlic and chili flakes.",
+                        ingredients: [
+                            "250 g pasta",
+                            "250 g tomatoes",
+                            "4 g chili flakes",
+                            "10 g garlic",
+                            "8 g parsley"
+                        ],
+                        steps: [
+                            "Boil pasta until al dente.",
+                            "Saute garlic and chili flakes briefly in olive oil.",
+                            "Add tomatoes and simmer until sauce thickens.",
+                            "Toss pasta in sauce, finish with parsley, and serve."
+                        ]
+                    }
+                }
+            },
+            riceFried: {
+                label: "Fried Rice",
+                recipes: {
+                    "Chicken Fried Rice": {
+                        photo: "chickenrice.jpeg",
+                        description: "Wok-fried rice with chicken, egg, and vegetables.",
+                        ingredients: [
+                            "300 g cooked rice",
+                            "180 g chicken strips",
+                            "2 eggs",
+                            "30 ml soy sauce",
+                            "120 g carrots and peas"
+                        ],
+                        steps: [
+                            "Scramble eggs in a hot pan and set aside.",
+                            "Cook chicken strips until done.",
+                            "Add vegetables and rice, then stir-fry on high heat.",
+                            "Mix in soy sauce and eggs, then serve."
+                        ]
+                    },
+                    "Vegetable Fried Rice": {
+                        photo: "vegrice.jpeg",
+                        description: "Quick veggie fried rice with soy and spring onion.",
+                        ingredients: [
+                            "300 g cooked rice",
+                            "80 g bell pepper",
+                            "70 g carrot",
+                            "30 ml soy sauce",
+                            "30 g spring onion"
+                        ],
+                        steps: [
+                            "Stir-fry bell pepper and carrot until crisp-tender.",
+                            "Add rice and cook on high heat for 2 to 3 minutes.",
+                            "Season with soy sauce and toss well.",
+                            "Top with spring onion and serve."
+                        ]
+                    }
+                }
+            },
+            riceBowls: {
+                label: "Rice Bowls",
+                recipes: {
+                    "Teriyaki Chicken Bowl": {
+                        photo: "teryaki.jpeg",
+                        description: "Balanced rice bowl with teriyaki chicken and broccoli.",
+                        ingredients: [
+                            "280 g cooked rice",
+                            "180 g chicken",
+                            "45 ml teriyaki sauce",
+                            "100 g broccoli",
+                            "8 g sesame"
+                        ],
+                        steps: [
+                            "Cook chicken pieces until browned.",
+                            "Add teriyaki sauce and simmer until glazed.",
+                            "Steam broccoli and prepare cooked rice in a bowl.",
+                            "Top rice with chicken and broccoli, then add sesame."
+                        ]
+                    },
+                    "Beef Rice Bowl": {
+                        photo: "beefrice.jpeg",
+                        description: "Savory beef strips over rice with onion and soy.",
+                        ingredients: [
+                            "280 g cooked rice",
+                            "180 g beef strips",
+                            "80 g onion",
+                            "30 ml soy sauce",
+                            "25 g green onion"
+                        ],
+                        steps: [
+                            "Sear beef strips over high heat for quick browning.",
+                            "Add onion and cook until softened.",
+                            "Pour soy sauce and cook for 1 to 2 minutes.",
+                            "Serve over rice and garnish with green onion."
+                        ]
+                    }
+                }
+            }
+        };
+
+        function openRecipePage(recipeName, categoryLabel, recipe) {
+            const params = new URLSearchParams();
+            params.set("title", recipeName);
+            params.set("category", categoryLabel);
+            params.set("ingredients", JSON.stringify(recipe.ingredients || []));
+            params.set("steps", JSON.stringify(recipe.steps || []));
+            if (recipe.photo) {
+                params.set("photo", recipe.photo);
+            }
+            params.set("back", "pastarice.html?category=" + encodeURIComponent(categoryKey || ""));
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        function renderCategoryRecipes() {
+            const category = pastaRiceData[categoryKey];
+            if (!category) {
+                pageTitle.textContent = "Pasta & Rice Categories";
+                pageSubtitle.textContent = "Choose a category, then open a recipe card.";
+                categoryPicker.classList.remove("hidden");
+                backToCategories.classList.add("hidden");
+                recipeGrid.classList.add("hidden");
+                return;
+            }
+
+            pageTitle.textContent = category.label + " Recipes";
+            pageSubtitle.textContent = "Choose a recipe card to open full ingredients and steps.";
+            categoryPicker.classList.add("hidden");
+            backToCategories.classList.remove("hidden");
+            recipeGrid.classList.remove("hidden");
+            recipeGrid.innerHTML = "";
+
+            Object.entries(category.recipes).forEach(function ([name, recipe]) {
+                const card = document.createElement("article");
+                card.className = "category-card";
+                const photo = recipe.photo || "pastaandrice.jpeg";
+                const description = recipe.description || "Open this recipe to view ingredients and steps.";
+
+                card.innerHTML = ""
+                    + '<span class="meal-photo-icon" aria-hidden="true" style="background-image:url(\'' + photo + '\')"></span>'
+                    + "<h2>" + name + "</h2>"
+                    + "<p>" + description + "</p>"
+                    + '<button type="button" class="action-link">Open Recipe</button>';
+
+                card.querySelector(".action-link").addEventListener("click", function () {
+                    openRecipePage(name, category.label, recipe);
+                });
+
+                recipeGrid.appendChild(card);
+            });
+        }
+
+        categoryButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                window.location.href = "pastarice.html?category=" + encodeURIComponent(button.dataset.category);
+            });
+        });
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        renderCategoryRecipes();
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

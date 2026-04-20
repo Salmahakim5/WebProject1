@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Dishes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page main-dishes-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel main-dishes-panel">
+        <h1>Main Dishes Categories</h1>
+        <p class="subtitle">Click a category, then choose a recipe to see its ingredients.</p>
+
+        <section class="dessert-icon-grid">
+            <button type="button" class="dessert-icon-btn" data-category="proteinMeals">
+                <span class="dessert-icon" aria-hidden="true">ðŸ—</span>
+                <span class="dessert-label">Protein Meals</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="pastaRice">
+                <span class="dessert-icon" aria-hidden="true">ðŸ</span>
+                <span class="dessert-label">Pasta & Rice</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="soupsStews">
+                <span class="dessert-icon" aria-hidden="true">ðŸ²</span>
+                <span class="dessert-label">Soups & Stews</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="vegetarian">
+                <span class="dessert-icon" aria-hidden="true">ðŸ¥—</span>
+                <span class="dessert-label">Vegetarian</span>
+            </button>
+        </section>
+
+        <section id="recipe-picker" class="dessert-card hidden">
+            <h2 id="category-title"></h2>
+            <p class="subtitle picker-subtitle">Choose a recipe:</p>
+            <div id="recipe-list" class="recipe-list"></div>
+        </section>
+
+        <section id="ingredient-panel" class="dessert-card hidden">
+            <h2 id="recipe-title"></h2>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul id="ingredient-list" class="ingredients-list"></ul>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const iconButtons = document.querySelectorAll(".dessert-icon-btn");
+        const recipePicker = document.getElementById("recipe-picker");
+        const ingredientPanel = document.getElementById("ingredient-panel");
+        const categoryTitle = document.getElementById("category-title");
+        const recipeList = document.getElementById("recipe-list");
+        const recipeTitle = document.getElementById("recipe-title");
+        const ingredientList = document.getElementById("ingredient-list");
+
+        const mainDishesData = {
+            proteinMeals: {
+                label: "Protein Meals",
+                recipes: {
+                    "Grilled Chicken Bowl": {
+                        icon: "ðŸ—",
+                        ingredients: [
+                            "Chicken breast",
+                            "Olive oil",
+                            "Garlic",
+                            "Rice",
+                            "Mixed vegetables"
+                        ]
+                    },
+                    "Baked Salmon Plate": {
+                        icon: "ðŸŸ",
+                        ingredients: [
+                            "Salmon fillet",
+                            "Lemon juice",
+                            "Black pepper",
+                            "Potatoes",
+                            "Broccoli"
+                        ]
+                    }
+                }
+            },
+            pastaRice: {
+                label: "Pasta & Rice",
+                recipes: {
+                    "Creamy Mushroom Pasta": [
+                        "Pasta",
+                        "Mushrooms",
+                        "Cooking cream",
+                        "Garlic",
+                        "Parmesan"
+                    ],
+                    "Chicken Fried Rice": [
+                        "Cooked rice",
+                        "Chicken strips",
+                        "Eggs",
+                        "Soy sauce",
+                        "Carrots and peas"
+                    ]
+                }
+            },
+            soupsStews: {
+                label: "Soups & Stews",
+                recipes: {
+                    "Lentil Soup": [
+                        "Red lentils",
+                        "Onion",
+                        "Carrot",
+                        "Cumin",
+                        "Vegetable broth"
+                    ],
+                    "Beef Stew": [
+                        "Beef cubes",
+                        "Potatoes",
+                        "Carrots",
+                        "Tomato paste",
+                        "Beef broth"
+                    ]
+                }
+            },
+            vegetarian: {
+                label: "Vegetarian",
+                recipes: {
+                    "Vegetable Stir-Fry": [
+                        "Bell peppers",
+                        "Broccoli",
+                        "Carrot",
+                        "Soy sauce",
+                        "Ginger"
+                    ],
+                    "Chickpea Curry": [
+                        "Chickpeas",
+                        "Onion",
+                        "Tomatoes",
+                        "Curry powder",
+                        "Coconut milk"
+                    ]
+                }
+            }
+        };
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        function renderIngredients(recipeName, ingredients) {
+            recipeTitle.textContent = recipeName;
+            ingredientList.innerHTML = "";
+
+            ingredients.forEach(function (ingredient) {
+                const li = document.createElement("li");
+                li.textContent = ingredient;
+                ingredientList.appendChild(li);
+            });
+
+            ingredientPanel.classList.remove("hidden");
+        }
+
+        function renderRecipes(categoryKey) {
+            const category = mainDishesData[categoryKey];
+            if (!category) {
+                return;
+            }
+
+            categoryTitle.textContent = category.label;
+            recipeList.innerHTML = "";
+            ingredientPanel.classList.add("hidden");
+
+            Object.entries(category.recipes).forEach(function ([name, recipeValue]) {
+                const isIngredientsArray = Array.isArray(recipeValue);
+                const ingredients = isIngredientsArray ? recipeValue : recipeValue.ingredients;
+                const recipeIcon = isIngredientsArray ? "" : recipeValue.icon || "";
+                const recipeButton = document.createElement("button");
+                recipeButton.type = "button";
+                recipeButton.className = "recipe-btn";
+                recipeButton.textContent = recipeIcon ? recipeIcon + " " + name : name;
+                recipeButton.addEventListener("click", function () {
+                    renderIngredients(name, ingredients);
+                });
+                recipeList.appendChild(recipeButton);
+            });
+
+            recipePicker.classList.remove("hidden");
+        }
+
+        iconButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                if (button.dataset.category === "proteinMeals") {
+                    window.location.href = "proteinmeals.html";
+                    return;
+                }
+                if (button.dataset.category === "pastaRice") {
+                    window.location.href = "pastarice.html";
+                    return;
+                }
+                if (button.dataset.category === "soupsStews") {
+                    window.location.href = "soupsstews.html";
+                    return;
+                }
+                if (button.dataset.category === "vegetarian") {
+                    window.location.href = "vegetarianmeals.html";
+                    return;
+                }
+
+                iconButtons.forEach(function (btn) {
+                    btn.classList.remove("active-icon");
+                });
+
+                button.classList.add("active-icon");
+                renderRecipes(button.dataset.category);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

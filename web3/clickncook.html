@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click N'Cook | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page clickncook-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel clickncook-panel">
+        <h1>Click N'Cook</h1>
+        <p class="subtitle">Pick a category to start exploring recipes</p>
+        <div class="cook-mode-scroller" aria-label="Recipe mode switch">
+            <a class="cook-mode-chip active" href="clickncook.html">Main Recipes</a>
+            <a class="cook-mode-chip" href="customizedrecipes.html">Customized Recipes</a>
+        </div>
+        <div class="category-search-wrap">
+            <input id="category-search" type="text" placeholder="Search categories (e.g. breakfast, drinks)" aria-label="Search categories">
+        </div>
+        <p id="category-search-empty" class="subtitle hidden">No category found. Try another keyword.</p>
+
+        <section class="category-grid">
+            <article class="category-card dessert-category-card">
+                <h2>Dessert</h2>
+                <p>Cakes, cookies, chilled treats, and sweet bakes.</p>
+                <a class="action-link" href="dessert.html">Explore Dessert</a>
+            </article>
+
+            <article class="category-card main-dishes-category-card">
+                <h2>Main Dishes</h2>
+                <p>Filling lunch and dinner ideas for every day cooking.</p>
+                <a class="action-link" href="maindishes.html">Explore Main Dishes</a>
+            </article>
+
+            <article class="category-card breakfast-category-card">
+                <h2>Breakfast</h2>
+                <p>Quick and hearty breakfast options to start your day.</p>
+                <a class="action-link" href="breakfastmeals.html">Explore Breakfast</a>
+            </article>
+
+            <article class="category-card drinks-category-card">
+                <h2>Drinks</h2>
+                <p>Hot and cold drinks, smoothies, and refreshing blends.</p>
+                <a class="action-link" href="drinksmeals.html">Explore Drinks</a>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const categorySearch = document.getElementById("category-search");
+        const emptySearchState = document.getElementById("category-search-empty");
+        const categoryCards = Array.from(document.querySelectorAll(".category-grid .category-card"));
+
+        function filterCategoryCards() {
+            const query = categorySearch.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            categoryCards.forEach(function (card) {
+                const text = card.textContent.toLowerCase();
+                const isMatch = !query || text.indexOf(query) !== -1;
+                card.style.display = isMatch ? "" : "none";
+                if (isMatch) {
+                    visibleCount += 1;
+                }
+            });
+
+            emptySearchState.classList.toggle("hidden", visibleCount > 0);
+        }
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        categorySearch.addEventListener("input", filterCategoryCards);
+        categorySearch.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter") {
+                return;
+            }
+            const firstVisibleCard = categoryCards.find(function (card) {
+                return card.style.display !== "none";
+            });
+            if (!firstVisibleCard) {
+                return;
+            }
+            const openLink = firstVisibleCard.querySelector(".action-link");
+            if (openLink) {
+                window.location.href = openLink.getAttribute("href");
+            }
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

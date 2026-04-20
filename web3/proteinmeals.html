@@ -1,0 +1,342 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protein Meals | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page protein-meals-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel protein-meals-panel">
+        <h1>Protein Meals Categories</h1>
+        <p class="subtitle">Click an icon, then choose a protein meal recipe.</p>
+
+        <section class="dessert-icon-grid">
+            <button type="button" class="dessert-icon-btn" data-category="chickenMeals">
+                <span class="dessert-icon" aria-hidden="true">ðŸ—</span>
+                <span class="dessert-label">Chicken Meals</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="seafoodMeals">
+                <span class="dessert-icon" aria-hidden="true">ðŸŸ</span>
+                <span class="dessert-label">Seafood Meals</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="beefMeals">
+                <span class="dessert-icon" aria-hidden="true">ðŸ¥©</span>
+                <span class="dessert-label">Beef Meals</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="highProteinBowls">
+                <span class="dessert-icon" aria-hidden="true">ðŸ¥—</span>
+                <span class="dessert-label">Protein Bowls</span>
+            </button>
+        </section>
+
+        <section id="recipe-picker" class="dessert-card hidden">
+            <h2 id="category-title"></h2>
+            <p class="subtitle picker-subtitle">Choose a recipe:</p>
+            <div id="recipe-list" class="recipe-list"></div>
+        </section>
+
+        <section id="ingredient-panel" class="dessert-card hidden">
+            <h2 id="recipe-title"></h2>
+            <div id="recipe-photo-wrap" class="recipe-photo-wrap hidden">
+                <img id="recipe-photo" class="recipe-photo" src="" alt="Recipe photo">
+            </div>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul id="ingredient-list" class="ingredients-list"></ul>
+            <h3 class="recipe-steps-title">Recipe Steps</h3>
+            <ol id="recipe-steps" class="recipe-steps"></ol>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const iconButtons = document.querySelectorAll(".dessert-icon-btn");
+        const recipePicker = document.getElementById("recipe-picker");
+        const ingredientPanel = document.getElementById("ingredient-panel");
+        const categoryTitle = document.getElementById("category-title");
+        const recipeList = document.getElementById("recipe-list");
+        const recipeTitle = document.getElementById("recipe-title");
+        const recipePhotoWrap = document.getElementById("recipe-photo-wrap");
+        const recipePhoto = document.getElementById("recipe-photo");
+        const ingredientList = document.getElementById("ingredient-list");
+        const recipeSteps = document.getElementById("recipe-steps");
+
+        const proteinMealsData = {
+            chickenMeals: {
+                label: "Chicken Meals",
+                recipes: {
+                    "Grilled Chicken Bowl": {
+                        photo: "protein.jpeg",
+                        ingredients: [
+                            "200 g chicken breast",
+                            "15 ml olive oil",
+                            "10 g garlic",
+                            "250 g cooked rice",
+                            "150 g mixed vegetables"
+                        ],
+                        steps: [
+                            "Season chicken with salt, pepper, and olive oil.",
+                            "Grill chicken until fully cooked, then slice.",
+                            "Cook rice and steam mixed vegetables.",
+                            "Assemble rice, vegetables, and chicken in a bowl."
+                        ]
+                    },
+                    "Lemon Herb Chicken": {
+                        photo: "lunch2.jpeg",
+                        ingredients: [
+                            "300 g chicken thighs",
+                            "30 ml lemon juice",
+                            "10 g garlic",
+                            "5 g rosemary",
+                            "250 g potatoes"
+                        ],
+                        steps: [
+                            "Marinate chicken with lemon, garlic, and rosemary.",
+                            "Arrange chicken and potatoes in a baking tray.",
+                            "Bake until chicken is golden and potatoes are tender.",
+                            "Serve hot with extra lemon juice."
+                        ]
+                    }
+                }
+            },
+            seafoodMeals: {
+                label: "Seafood Meals",
+                recipes: {
+                    "Baked Salmon Plate": {
+                        photo: "../../seafood.jpeg",
+                        ingredients: [
+                            "220 g salmon fillet",
+                            "20 ml lemon juice",
+                            "3 g black pepper",
+                            "220 g potatoes",
+                            "120 g broccoli"
+                        ],
+                        steps: [
+                            "Season salmon with lemon juice, salt, and pepper.",
+                            "Bake salmon until flaky.",
+                            "Roast potatoes and steam broccoli.",
+                            "Plate salmon with potatoes and broccoli."
+                        ]
+                    },
+                    "Garlic Shrimp Rice": {
+                        photo: "recipe.jpeg",
+                        ingredients: [
+                            "200 g shrimp",
+                            "10 g garlic",
+                            "20 g butter",
+                            "250 g cooked rice",
+                            "10 g parsley"
+                        ],
+                        steps: [
+                            "Saute garlic in butter until fragrant.",
+                            "Add shrimp and cook until pink.",
+                            "Stir in cooked rice and toss well.",
+                            "Finish with chopped parsley and serve."
+                        ]
+                    }
+                }
+            },
+            beefMeals: {
+                label: "Beef Meals",
+                recipes: {
+                    "Beef Steak with Veggies": {
+                        photo: "../../beef2.jpeg",
+                        ingredients: [
+                            "220 g beef steak",
+                            "15 ml olive oil",
+                            "3 g black pepper",
+                            "120 g carrots",
+                            "100 g green beans"
+                        ],
+                        steps: [
+                            "Season steak with salt and black pepper.",
+                            "Sear steak in a hot pan to desired doneness.",
+                            "Saute carrots and green beans in olive oil.",
+                            "Serve steak with cooked vegetables."
+                        ]
+                    },
+                    "Beef Stir-Fry": {
+                        photo: "../../beef.jpeg",
+                        ingredients: [
+                            "220 g beef strips",
+                            "120 g bell peppers",
+                            "90 g onion",
+                            "30 ml soy sauce",
+                            "10 ml sesame oil"
+                        ],
+                        steps: [
+                            "Heat sesame oil in a wok.",
+                            "Cook beef strips quickly on high heat.",
+                            "Add peppers and onion, then stir-fry.",
+                            "Pour soy sauce and toss until coated."
+                        ]
+                    }
+                }
+            },
+            highProteinBowls: {
+                label: "Protein Bowls",
+                recipes: {
+                    "Chicken Quinoa Bowl": {
+                        photo: "../../protien bowls.jpeg",
+                        ingredients: [
+                            "200 g chicken breast",
+                            "180 g cooked quinoa",
+                            "80 g cucumber",
+                            "100 g cherry tomatoes",
+                            "60 ml yogurt dressing"
+                        ],
+                        steps: [
+                            "Cook quinoa and let it cool slightly.",
+                            "Grill chicken breast and slice thinly.",
+                            "Arrange quinoa, chicken, and vegetables in a bowl.",
+                            "Drizzle yogurt dressing before serving."
+                        ]
+                    },
+                    "Tuna Protein Bowl": {
+                        photo: "../../seafood.jpeg",
+                        ingredients: [
+                            "160 g tuna",
+                            "250 g cooked brown rice",
+                            "80 g corn",
+                            "90 g avocado",
+                            "20 ml lemon juice"
+                        ],
+                        steps: [
+                            "Cook brown rice and place in a serving bowl.",
+                            "Add tuna, corn, and sliced avocado on top.",
+                            "Season with salt, pepper, and lemon juice.",
+                            "Mix lightly and serve immediately."
+                        ]
+                    }
+                }
+            }
+        };
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        function renderRecipeDetails(recipeName, recipe) {
+            recipeTitle.textContent = recipeName;
+            ingredientList.innerHTML = "";
+            recipeSteps.innerHTML = "";
+
+            if (recipe.photo) {
+                recipePhoto.src = recipe.photo;
+                recipePhoto.alt = recipeName + " photo";
+                recipePhotoWrap.classList.remove("hidden");
+            } else {
+                recipePhotoWrap.classList.add("hidden");
+            }
+
+            recipe.ingredients.forEach(function (ingredient) {
+                const li = document.createElement("li");
+                li.textContent = ingredient;
+                ingredientList.appendChild(li);
+            });
+
+            recipe.steps.forEach(function (step) {
+                const li = document.createElement("li");
+                li.textContent = step;
+                recipeSteps.appendChild(li);
+            });
+
+            ingredientPanel.classList.remove("hidden");
+        }
+
+        function renderRecipes(categoryKey) {
+            const category = proteinMealsData[categoryKey];
+            if (!category) {
+                return;
+            }
+
+            categoryTitle.textContent = category.label;
+            recipeList.innerHTML = "";
+            ingredientPanel.classList.add("hidden");
+
+            Object.entries(category.recipes).forEach(function ([name, recipe]) {
+                const recipeButton = document.createElement("button");
+                recipeButton.type = "button";
+                recipeButton.className = "recipe-btn";
+                recipeButton.textContent = name;
+                recipeButton.addEventListener("click", function () {
+                    renderRecipeDetails(name, recipe);
+                });
+                recipeList.appendChild(recipeButton);
+            });
+
+            recipePicker.classList.remove("hidden");
+        }
+
+        iconButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                if (button.dataset.category === "chickenMeals") {
+                    window.location.href = "chickenmeals.html";
+                    return;
+                }
+                if (button.dataset.category === "seafoodMeals") {
+                    window.location.href = "seafoodmeals.html";
+                    return;
+                }
+                if (button.dataset.category === "beefMeals") {
+                    window.location.href = "beefmeals.html";
+                    return;
+                }
+                if (button.dataset.category === "highProteinBowls") {
+                    window.location.href = "proteinbowls.html";
+                    return;
+                }
+
+                iconButtons.forEach(function (btn) {
+                    btn.classList.remove("active-icon");
+                });
+
+                button.classList.add("active-icon");
+                renderRecipes(button.dataset.category);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Us | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page support-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel form-panel">
+        <h1>Rate Us</h1>
+        <p class="subtitle">Give us your rating</p>
+
+        <form id="rating-form">
+            <label>Rate us</label>
+            <div class="star-rating">
+                <input id="star-5" type="radio" name="rating" value="5" required>
+                <label for="star-5" title="5 stars">&#9733;</label>
+                <input id="star-4" type="radio" name="rating" value="4">
+                <label for="star-4" title="4 stars">&#9733;</label>
+                <input id="star-3" type="radio" name="rating" value="3">
+                <label for="star-3" title="3 stars">&#9733;</label>
+                <input id="star-2" type="radio" name="rating" value="2">
+                <label for="star-2" title="2 stars">&#9733;</label>
+                <input id="star-1" type="radio" name="rating" value="1">
+                <label for="star-1" title="1 star">&#9733;</label>
+            </div>
+
+            <button type="submit">Submit Rating</button>
+        </form>
+
+        <p id="feedback-success" class="success-msg hidden">
+            Thank you!<br>
+            Your feedback has been successfully submitted.<br>
+            We truly value your input and will use it to improve our services.
+        </p>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const ratingForm = document.getElementById("rating-form");
+        const feedbackSuccess = document.getElementById("feedback-success");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        ratingForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            feedbackSuccess.classList.remove("hidden");
+            ratingForm.reset();
+            setTimeout(function () {
+                window.location.href = "Homepage.html";
+            }, 1800);
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

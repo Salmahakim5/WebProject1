@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customized by People | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page clickncook-page customized-recipes-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="clickncook.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+            <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel clickncook-panel customized-people-panel">
+        <div class="cook-mode-scroller" aria-label="Recipe mode switch">
+            <a class="cook-mode-chip" href="clickncook.html">Main Recipes</a>
+            <a class="cook-mode-chip active" href="customizedrecipes.html">Customized by People</a>
+        </div>
+
+        <section>
+            <div id="community-recipe-grid" class="community-recipe-grid"></div>
+            <p id="customized-empty" class="upload-help">No customized recipes yet.</p>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const communityGrid = document.getElementById("community-recipe-grid");
+        const emptyState = document.getElementById("customized-empty");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        const subcategoryImageMap = {
+            cakes: "cakes.jpeg",
+            cookies: "iconecookies.jpeg",
+            chilledTreats: "chilledicon.jpeg",
+            sweetBakes: "sweeticon.jpeg",
+            proteinMeals: "protein.jpeg",
+            pastaRice: "pastaandrice.jpeg",
+            soupsStews: "soups.jpeg",
+            vegetarian: "vegetarian.jpeg",
+            chickenMeals: "chickenicon.jpeg",
+            seafoodMeals: "seafood.jpeg",
+            beefMeals: "beef.jpeg",
+            highProteinBowls: "protien bowls.jpeg",
+            pastaCreamy: "creamypasta.jpeg",
+            pastaTomato: "marinara.jpeg",
+            riceFried: "fried.jpeg",
+            riceBowls: "rice.jpeg",
+            lightSoups: "lightsoups.jpeg",
+            heartyStews: "heartystews.jpeg",
+            creamSoups: "mushroomsoup.jpeg",
+            beanLentilSoups: "lentil.jpeg",
+            veggieBowls: "vegiebowls.jpeg",
+            plantProtein: "plant.jpeg",
+            vegetarianPasta: "vegtpasta.jpeg",
+            veggieCurries: "veggiecurries.jpeg",
+            eggMeals: "omlette.jpeg",
+            toastSandwiches: "toast.jpeg",
+            oatsBowls: "oats.jpeg",
+            pancakesWaffles: "pancakes.jpeg",
+            hotDrinks: "hot.jpeg",
+            coldDrinks: "cold.jpeg",
+            smoothies: "smothies.jpeg",
+            mocktails: "mock.jpeg"
+        };
+
+        function getUsers() {
+            try {
+                return JSON.parse(localStorage.getItem("rrUsers")) || {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function parseList(value) {
+            if (Array.isArray(value)) {
+                return value;
+            }
+            const text = String(value || "").trim();
+            if (!text) {
+                return [];
+            }
+            return text
+                .split(/\n|,/)
+                .map(function (item) { return item.trim(); })
+                .filter(function (item) { return item.length > 0; });
+        }
+
+        function toSummary(recipe) {
+            if (recipe.description) {
+                return String(recipe.description);
+            }
+            const steps = parseList(recipe.steps);
+            const firstStep = steps[0] || "A community customized recipe.";
+            return firstStep.length > 75 ? firstStep.slice(0, 75) + "..." : firstStep;
+        }
+
+        function escapeHtml(text) {
+            return String(text || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function buildDetailLink(recipe) {
+            const params = new URLSearchParams();
+            params.set("title", recipe.title || "Recipe");
+            params.set("author", recipe.author || "User");
+            params.set("categoryKey", recipe.categoryKey || "");
+            params.set("category", recipe.category || "General");
+            params.set("subcategoryKey", recipe.subcategoryKey || "");
+            params.set("subcategory", recipe.subcategory || "Custom");
+            params.set("photo", recipe.photo || "");
+            params.set("description", recipe.description || "");
+            params.set("ingredients", JSON.stringify(parseList(recipe.ingredients)));
+            params.set("steps", JSON.stringify(parseList(recipe.steps)));
+            params.set("back", "customizedrecipes.html");
+            return "community-recipe.html?" + params.toString();
+        }
+
+        function normalizeRecipe(input, defaultAuthor) {
+            return {
+                title: input.title || "Untitled Recipe",
+                author: input.author || defaultAuthor || "User",
+                categoryKey: input.categoryKey || "",
+                category: input.category || "General",
+                subcategory: input.subcategory || "Custom",
+                subcategoryKey: input.subcategoryKey || "",
+                ingredients: input.ingredients || "",
+                steps: input.steps || "",
+                photo: input.photo || subcategoryImageMap[input.subcategoryKey] || "categories.jpeg",
+                description: toSummary(input)
+            };
+        }
+
+        function getAllRecipesFromLocalStorage() {
+            const users = getUsers();
+            const recipes = [];
+            Object.values(users).forEach(function (user) {
+                const userName = user && user.fullName ? user.fullName : "User";
+                const userRecipes = Array.isArray(user.recipes) ? user.recipes : [];
+                userRecipes.forEach(function (recipe) {
+                    recipes.push(normalizeRecipe(recipe, userName));
+                });
+            });
+            return recipes;
+        }
+
+        async function getAllRecipesFromJson() {
+            try {
+                const response = await fetch("customized-recipes.json", { cache: "no-store" });
+                if (!response.ok) {
+                    return [];
+                }
+                const data = await response.json();
+                return Array.isArray(data)
+                    ? data.map(function (recipe) { return normalizeRecipe(recipe, recipe.author || "Community"); })
+                    : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function renderRecipes(recipes) {
+            communityGrid.innerHTML = "";
+            if (!recipes.length) {
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+            recipes.forEach(function (recipe) {
+                const card = document.createElement("article");
+                card.className = "community-recipe-card";
+                const detailLink = buildDetailLink(recipe);
+                card.innerHTML = ""
+                    + '<img class="community-recipe-photo" src="' + escapeHtml(recipe.photo) + '" alt="' + escapeHtml(recipe.title) + '">'
+                    + '<h3 class="community-recipe-title">' + escapeHtml(recipe.title) + "</h3>"
+                    + '<p class="community-recipe-meta">By ' + escapeHtml(recipe.author) + ". " + escapeHtml(recipe.description) + "</p>"
+                    + '<a class="community-open-btn" href="' + detailLink + '">Open Recipe</a>';
+                communityGrid.appendChild(card);
+            });
+        }
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("currentUserEmail");
+            window.location.href = "login.html";
+        });
+
+        async function renderCustomizedRecipes() {
+            const localRecipes = getAllRecipesFromLocalStorage();
+            const jsonRecipes = await getAllRecipesFromJson();
+            renderRecipes(localRecipes.concat(jsonRecipes));
+        }
+
+        renderCustomizedRecipes();
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

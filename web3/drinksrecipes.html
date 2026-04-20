@@ -1,0 +1,276 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drinks Recipes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page drinks-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="drinksmeals.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel drinks-panel">
+        <h1 id="category-title">Drinks Recipes</h1>
+        <p class="subtitle">Choose a recipe card to open full ingredients and steps.</p>
+        <a class="action-link" href="drinksmeals.html">Back to Drinks Categories</a>
+
+        <section id="recipe-grid" class="category-grid"></section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const categoryTitle = document.getElementById("category-title");
+        const recipeGrid = document.getElementById("recipe-grid");
+
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryKey = urlParams.get("category");
+
+        const drinksData = {
+            hotDrinks: {
+                label: "Hot Drinks",
+                recipes: {
+                    "Masala Tea": {
+                        photo: "masala.jpeg",
+                        description: "Spiced milk tea with cardamom and ginger.",
+                        ingredients: [
+                            "250 ml water",
+                            "150 ml milk",
+                            "5 g tea leaves",
+                            "3 g fresh ginger",
+                            "2 cardamom pods"
+                        ],
+                        steps: [
+                            "Boil water with ginger and cardamom.",
+                            "Add tea leaves and simmer for 2 minutes.",
+                            "Pour in milk and bring to a gentle boil.",
+                            "Strain into a cup and serve hot."
+                        ]
+                    },
+                    "Hot Chocolate": {
+                        photo: "hotchocolate.jpeg",
+                        description: "Creamy cocoa drink for a warm start.",
+                        ingredients: [
+                            "250 ml milk",
+                            "15 g cocoa powder",
+                            "12 g sugar",
+                            "15 g dark chocolate",
+                            "1 ml vanilla extract"
+                        ],
+                        steps: [
+                            "Heat milk in a saucepan over medium heat.",
+                            "Whisk in cocoa powder and sugar until smooth.",
+                            "Add chocolate and stir until melted.",
+                            "Finish with vanilla and serve warm."
+                        ]
+                    }
+                }
+            },
+            coldDrinks: {
+                label: "Cold Drinks",
+                recipes: {
+                    "Lemon Mint Cooler": {
+                        photo: "lemonmint.jpeg",
+                        description: "Refreshing lemon drink with mint and ice.",
+                        ingredients: [
+                            "250 ml cold water",
+                            "30 ml lemon juice",
+                            "10 g sugar",
+                            "8 g fresh mint",
+                            "1 cup ice cubes"
+                        ],
+                        steps: [
+                            "Stir lemon juice and sugar in cold water.",
+                            "Crush mint leaves lightly and add to the drink.",
+                            "Add ice cubes and mix well.",
+                            "Serve immediately."
+                        ]
+                    },
+                    "Iced Coffee": {
+                        photo: "ice.jpeg",
+                        description: "Chilled coffee with milk and foam.",
+                        ingredients: [
+                            "120 ml strong coffee",
+                            "140 ml cold milk",
+                            "8 g sugar",
+                            "1 cup ice cubes",
+                            "2 ml vanilla extract"
+                        ],
+                        steps: [
+                            "Brew coffee and cool it completely.",
+                            "Blend coffee, milk, sugar, and vanilla.",
+                            "Fill a glass with ice and pour the mixture.",
+                            "Serve chilled."
+                        ]
+                    }
+                }
+            },
+            smoothies: {
+                label: "Smoothies",
+                recipes: {
+                    "Mango Banana Smoothie": {
+                        photo: "mangobanana.jpeg",
+                        description: "Sweet tropical smoothie with yogurt.",
+                        ingredients: [
+                            "120 g mango chunks",
+                            "1 banana",
+                            "180 g yogurt",
+                            "100 ml milk",
+                            "8 ml honey"
+                        ],
+                        steps: [
+                            "Add mango, banana, yogurt, and milk to blender.",
+                            "Blend until smooth and creamy.",
+                            "Taste and add honey if needed.",
+                            "Pour into a glass and serve cold."
+                        ]
+                    },
+                    "Berry Yogurt Smoothie": {
+                        photo: "berrysmo.jpeg",
+                        description: "Creamy berry smoothie rich in flavor.",
+                        ingredients: [
+                            "100 g mixed berries",
+                            "170 g yogurt",
+                            "90 ml milk",
+                            "10 g chia seeds",
+                            "8 ml honey"
+                        ],
+                        steps: [
+                            "Blend berries, yogurt, and milk.",
+                            "Add chia seeds and honey, then pulse briefly.",
+                            "Adjust thickness with a little extra milk if needed.",
+                            "Serve chilled."
+                        ]
+                    }
+                }
+            },
+            mocktails: {
+                label: "Mocktails",
+                recipes: {
+                    "Virgin Mojito": {
+                        photo: "moj.jpeg",
+                        description: "Citrusy mint mocktail with sparkling water.",
+                        ingredients: [
+                            "30 ml lime juice",
+                            "10 g sugar",
+                            "10 g mint leaves",
+                            "180 ml sparkling water",
+                            "1 cup ice cubes"
+                        ],
+                        steps: [
+                            "Muddle mint leaves with sugar and lime juice.",
+                            "Add ice cubes to a serving glass.",
+                            "Pour sparkling water and stir gently.",
+                            "Garnish with mint and serve."
+                        ]
+                    },
+                    "Sunrise Cooler": {
+                        photo: "sunrise.jpeg",
+                        description: "Orange and pomegranate layered mocktail.",
+                        ingredients: [
+                            "180 ml orange juice",
+                            "25 ml pomegranate syrup",
+                            "15 ml lemon juice",
+                            "1 cup ice cubes",
+                            "1 orange slice"
+                        ],
+                        steps: [
+                            "Fill glass with ice and pour orange juice.",
+                            "Add lemon juice and stir lightly.",
+                            "Slowly pour pomegranate syrup to create layers.",
+                            "Garnish with orange slice and serve."
+                        ]
+                    }
+                }
+            }
+        };
+
+        function openRecipePage(recipeName, categoryLabel, recipe) {
+            const params = new URLSearchParams();
+            params.set("title", recipeName);
+            params.set("category", categoryLabel);
+            params.set("ingredients", JSON.stringify(recipe.ingredients || []));
+            params.set("steps", JSON.stringify(recipe.steps || []));
+            if (recipe.photo) {
+                params.set("photo", recipe.photo);
+            }
+            params.set("back", "drinksrecipes.html?category=" + encodeURIComponent(categoryKey));
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        function renderCategoryRecipes() {
+            const category = drinksData[categoryKey];
+            if (!category) {
+                categoryTitle.textContent = "Category Not Found";
+                recipeGrid.innerHTML = '<article class="category-card"><h2>No recipes found</h2><p>Please return and choose a valid category.</p></article>';
+                return;
+            }
+
+            categoryTitle.textContent = category.label + " Recipes";
+            recipeGrid.innerHTML = "";
+
+            Object.entries(category.recipes).forEach(function ([name, recipe]) {
+                const card = document.createElement("article");
+                card.className = "category-card";
+                const photo = recipe.photo || "drinks.jpeg";
+                const description = recipe.description || "Open this recipe to view ingredients and steps.";
+
+                card.innerHTML = ""
+                    + '<span class="meal-photo-icon" aria-hidden="true" style="background-image:url(\'' + photo + '\')"></span>'
+                    + "<h2>" + name + "</h2>"
+                    + "<p>" + description + "</p>"
+                    + '<button type="button" class="action-link">Open Recipe</button>';
+
+                card.querySelector(".action-link").addEventListener("click", function () {
+                    openRecipePage(name, category.label, recipe);
+                });
+
+                recipeGrid.appendChild(card);
+            });
+        }
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        renderCategoryRecipes();
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+

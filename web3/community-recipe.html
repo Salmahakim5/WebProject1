@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Recipe | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page customized-recipe-details-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a id="back-link" class="back-icon-btn" href="customizedrecipes.html" aria-label="Go back" title="Go back">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+            <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel community-recipe-panel">
+        <img id="community-photo" class="community-hero-image" src="" alt="Recipe image">
+
+        <section class="community-recipe-content">
+            <h2>Ingredients</h2>
+            <ul id="community-ingredients" class="ingredients-list"></ul>
+
+            <h3 class="recipe-steps-title">Recipe</h3>
+            <ol id="community-steps" class="recipe-steps"></ol>
+
+            <button id="community-customize-btn" type="button" class="community-customize-btn">Customize & Save to Community</button>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const backLink = document.getElementById("back-link");
+        const photo = document.getElementById("community-photo");
+        const ingredientsList = document.getElementById("community-ingredients");
+        const stepsList = document.getElementById("community-steps");
+        const customizeBtn = document.getElementById("community-customize-btn");
+        const params = new URLSearchParams(window.location.search);
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        function parseList(value) {
+            if (!value) {
+                return [];
+            }
+            try {
+                const parsed = JSON.parse(value);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                return String(value).split(/\n|,/).map(function (item) { return item.trim(); }).filter(Boolean);
+            }
+        }
+
+        const title = params.get("title") || "Recipe";
+        const categoryKey = params.get("categoryKey") || "";
+        const category = params.get("category") || "General";
+        const subcategoryKey = params.get("subcategoryKey") || "";
+        const subcategory = params.get("subcategory") || "Custom";
+        const imageUrl = params.get("photo") || "categories.jpeg";
+        const back = params.get("back") || "customizedrecipes.html";
+        const ingredients = parseList(params.get("ingredients"));
+        const steps = parseList(params.get("steps"));
+
+        document.title = title + " | Community Recipe";
+        photo.src = imageUrl;
+        photo.alt = title + " image";
+        backLink.href = back;
+        backLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = back;
+            }
+        });
+
+        ingredientsList.innerHTML = "";
+        ingredients.forEach(function (item) {
+            const li = document.createElement("li");
+            li.textContent = item;
+            ingredientsList.appendChild(li);
+        });
+        if (!ingredients.length) {
+            const li = document.createElement("li");
+            li.textContent = "No ingredients listed yet.";
+            ingredientsList.appendChild(li);
+        }
+
+        stepsList.innerHTML = "";
+        steps.forEach(function (item) {
+            const li = document.createElement("li");
+            li.textContent = item;
+            stepsList.appendChild(li);
+        });
+        if (!steps.length) {
+            const li = document.createElement("li");
+            li.textContent = "No steps listed yet.";
+            stepsList.appendChild(li);
+        }
+
+        customizeBtn.addEventListener("click", function () {
+            const nextParams = new URLSearchParams();
+            nextParams.set("title", title);
+            nextParams.set("categoryKey", categoryKey);
+            nextParams.set("category", category);
+            nextParams.set("subcategoryKey", subcategoryKey);
+            nextParams.set("subcategory", subcategory);
+            nextParams.set("photo", imageUrl);
+            nextParams.set("ingredients", JSON.stringify(ingredients));
+            nextParams.set("steps", JSON.stringify(steps));
+            window.location.href = "upload-recipe.html?" + nextParams.toString();
+        });
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("currentUserEmail");
+            window.location.href = "login.html";
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

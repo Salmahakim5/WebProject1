@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soups & Stews Recipes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page soups-stews-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="maindishes.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel soups-stews-panel">
+        <h1 id="page-title">Soups & Stews Categories</h1>
+        <p class="subtitle" id="page-subtitle">Choose a category, then open a recipe card.</p>
+        <a class="action-link" href="maindishes.html">Back to Main Dishes</a>
+
+        <section id="category-picker" class="dessert-icon-grid">
+            <button type="button" class="dessert-icon-btn" data-category="lightSoups">
+                <span class="dessert-icon" aria-hidden="true">&#127836;</span>
+                <span class="dessert-label">Light Soups</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="heartyStews">
+                <span class="dessert-icon" aria-hidden="true">&#127858;</span>
+                <span class="dessert-label">Hearty Stews</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="creamSoups">
+                <span class="dessert-icon" aria-hidden="true">&#129379;</span>
+                <span class="dessert-label">Cream Soups</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="beanLentilSoups">
+                <span class="dessert-icon" aria-hidden="true">&#129464;</span>
+                <span class="dessert-label">Bean & Lentil</span>
+            </button>
+        </section>
+
+        <a id="back-to-categories" class="action-link hidden" href="soupsstews.html">Back to Soups & Stews Categories</a>
+        <section id="recipe-grid" class="category-grid hidden"></section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const pageTitle = document.getElementById("page-title");
+        const pageSubtitle = document.getElementById("page-subtitle");
+        const categoryPicker = document.getElementById("category-picker");
+        const backToCategories = document.getElementById("back-to-categories");
+        const recipeGrid = document.getElementById("recipe-grid");
+        const categoryButtons = document.querySelectorAll("#category-picker .dessert-icon-btn");
+
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryKey = urlParams.get("category");
+
+        const soupsStewsData = {
+            lightSoups: {
+                label: "Light Soups",
+                recipes: {
+                    "Chicken Noodle Soup": {
+                        photo: "chickennoodle.jpeg",
+                        description: "Comforting light soup with chicken and noodles.",
+                        ingredients: [
+                            "220 g chicken breast",
+                            "180 g noodles",
+                            "90 g carrot",
+                            "80 g celery",
+                            "1.2 L chicken broth"
+                        ],
+                        steps: [
+                            "Boil broth, add chicken breast, and cook until tender.",
+                            "Shred chicken and return it to the pot.",
+                            "Add noodles and vegetables, then simmer until cooked.",
+                            "Season and serve hot."
+                        ]
+                    },
+                    "Vegetable Soup": {
+                        photo: "vegt.jpeg",
+                        description: "Simple mixed vegetable soup for a lighter meal.",
+                        ingredients: [
+                            "100 g carrot",
+                            "120 g zucchini",
+                            "80 g onion",
+                            "120 g tomato",
+                            "1.2 L vegetable broth"
+                        ],
+                        steps: [
+                            "Saute onion until translucent.",
+                            "Add carrot, zucchini, and tomato and cook briefly.",
+                            "Pour in broth and simmer until vegetables are tender.",
+                            "Adjust seasoning and serve warm."
+                        ]
+                    }
+                }
+            },
+            heartyStews: {
+                label: "Hearty Stews",
+                recipes: {
+                    "Beef Stew": {
+                        photo: "beefsoup.jpeg",
+                        description: "Slow-simmered beef stew with potatoes and carrots.",
+                        ingredients: [
+                            "350 g beef cubes",
+                            "250 g potatoes",
+                            "120 g carrots",
+                            "35 g tomato paste",
+                            "1.3 L beef broth"
+                        ],
+                        steps: [
+                            "Brown beef cubes in a pot.",
+                            "Stir in tomato paste, then add broth.",
+                            "Simmer until beef starts to soften.",
+                            "Add potatoes and carrots and cook until tender."
+                        ]
+                    },
+                    "Chicken Stew": {
+                        photo: "chickenstew.jpeg",
+                        description: "Hearty chicken stew with potatoes and onion.",
+                        ingredients: [
+                            "320 g chicken thighs",
+                            "220 g potatoes",
+                            "100 g carrot",
+                            "80 g onion",
+                            "1.2 L chicken broth"
+                        ],
+                        steps: [
+                            "Saute onion and chicken until lightly golden.",
+                            "Add broth and simmer for 20 minutes.",
+                            "Stir in potatoes and carrot and cook until soft.",
+                            "Season to taste and serve."
+                        ]
+                    }
+                }
+            },
+            creamSoups: {
+                label: "Cream Soups",
+                recipes: {
+                    "Mushroom Cream Soup": {
+                        photo: "mushroomsoup.jpeg",
+                        description: "Rich creamy mushroom soup with butter and herbs.",
+                        ingredients: [
+                            "250 g mushrooms",
+                            "80 g onion",
+                            "180 ml cream",
+                            "20 g butter",
+                            "1 L vegetable broth"
+                        ],
+                        steps: [
+                            "Cook onion and mushrooms in butter until soft.",
+                            "Add broth and simmer for 10 to 12 minutes.",
+                            "Blend soup until smooth.",
+                            "Return to heat, stir in cream, and serve."
+                        ]
+                    },
+                    "Pumpkin Soup": {
+                        photo: "pumpkin.jpeg",
+                        description: "Velvety pumpkin soup with garlic and cream.",
+                        ingredients: [
+                            "350 g pumpkin",
+                            "80 g onion",
+                            "160 ml cream",
+                            "10 g garlic",
+                            "1 L vegetable broth"
+                        ],
+                        steps: [
+                            "Saute onion and garlic until fragrant.",
+                            "Add pumpkin and broth and cook until pumpkin is soft.",
+                            "Blend until smooth and return to low heat.",
+                            "Stir in cream, season, and serve hot."
+                        ]
+                    }
+                }
+            },
+            beanLentilSoups: {
+                label: "Bean & Lentil",
+                recipes: {
+                    "Lentil Soup": {
+                        photo: "lentil.jpeg",
+                        description: "Protein-rich lentil soup with carrot and cumin.",
+                        ingredients: [
+                            "220 g red lentils",
+                            "80 g onion",
+                            "90 g carrot",
+                            "4 g cumin",
+                            "1.2 L vegetable broth"
+                        ],
+                        steps: [
+                            "Rinse lentils and add to a pot with broth.",
+                            "Add onion, carrot, and cumin.",
+                            "Simmer until lentils are very soft.",
+                            "Blend partially if desired and serve."
+                        ]
+                    },
+                    "White Bean Soup": {
+                        photo: "whitebeans.jpeg",
+                        description: "Warm white bean soup with garlic and spinach.",
+                        ingredients: [
+                            "250 g white beans",
+                            "80 g onion",
+                            "10 g garlic",
+                            "90 g spinach",
+                            "1.2 L vegetable broth"
+                        ],
+                        steps: [
+                            "Saute onion and garlic in a little oil.",
+                            "Add beans and broth and simmer 15 minutes.",
+                            "Add spinach and cook for 2 to 3 minutes.",
+                            "Season and serve warm."
+                        ]
+                    }
+                }
+            }
+        };
+
+        function openRecipePage(recipeName, categoryLabel, recipe) {
+            const params = new URLSearchParams();
+            params.set("title", recipeName);
+            params.set("category", categoryLabel);
+            params.set("ingredients", JSON.stringify(recipe.ingredients || []));
+            params.set("steps", JSON.stringify(recipe.steps || []));
+            if (recipe.photo) {
+                params.set("photo", recipe.photo);
+            }
+            params.set("back", "soupsstews.html?category=" + encodeURIComponent(categoryKey || ""));
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        function renderCategoryRecipes() {
+            const category = soupsStewsData[categoryKey];
+            if (!category) {
+                pageTitle.textContent = "Soups & Stews Categories";
+                pageSubtitle.textContent = "Choose a category, then open a recipe card.";
+                categoryPicker.classList.remove("hidden");
+                backToCategories.classList.add("hidden");
+                recipeGrid.classList.add("hidden");
+                return;
+            }
+
+            pageTitle.textContent = category.label + " Recipes";
+            pageSubtitle.textContent = "Choose a recipe card to open full ingredients and steps.";
+            categoryPicker.classList.add("hidden");
+            backToCategories.classList.remove("hidden");
+            recipeGrid.classList.remove("hidden");
+            recipeGrid.innerHTML = "";
+
+            Object.entries(category.recipes).forEach(function ([name, recipe]) {
+                const card = document.createElement("article");
+                card.className = "category-card";
+                const photo = recipe.photo || "soups.jpeg";
+                const description = recipe.description || "Open this recipe to view ingredients and steps.";
+
+                card.innerHTML = ""
+                    + '<span class="meal-photo-icon" aria-hidden="true" style="background-image:url(\'' + photo + '\')"></span>'
+                    + "<h2>" + name + "</h2>"
+                    + "<p>" + description + "</p>"
+                    + '<button type="button" class="action-link">Open Recipe</button>';
+
+                card.querySelector(".action-link").addEventListener("click", function () {
+                    openRecipePage(name, category.label, recipe);
+                });
+
+                recipeGrid.appendChild(card);
+            });
+        }
+
+        categoryButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                window.location.href = "soupsstews.html?category=" + encodeURIComponent(button.dataset.category);
+            });
+        });
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        renderCategoryRecipes();
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

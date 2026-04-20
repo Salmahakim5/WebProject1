@@ -1,0 +1,276 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakfast Recipes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page breakfast-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="breakfastmeals.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel breakfast-panel">
+        <h1 id="category-title">Breakfast Recipes</h1>
+        <p class="subtitle">Choose a recipe card to open full ingredients and steps.</p>
+        <a class="action-link" href="breakfastmeals.html">Back to Breakfast Categories</a>
+
+        <section id="recipe-grid" class="category-grid"></section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const categoryTitle = document.getElementById("category-title");
+        const recipeGrid = document.getElementById("recipe-grid");
+
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryKey = urlParams.get("category");
+
+        const breakfastData = {
+            eggMeals: {
+                label: "Egg Meals",
+                recipes: {
+                    "Veggie Omelet": {
+                        photo: "omlette.jpeg",
+                        description: "Fluffy omelet with peppers, onion, and herbs.",
+                        ingredients: [
+                            "3 eggs",
+                            "40 g bell pepper",
+                            "35 g onion",
+                            "10 g parsley",
+                            "5 ml olive oil"
+                        ],
+                        steps: [
+                            "Whisk eggs with a pinch of salt and pepper.",
+                            "Saute onion and bell pepper for 2 minutes.",
+                            "Pour eggs into the pan and cook on medium heat.",
+                            "Fold the omelet, garnish with parsley, and serve."
+                        ]
+                    },
+                    "Scrambled Eggs Toast": {
+                        photo: "scram.jpeg",
+                        description: "Creamy scrambled eggs served on crisp toast.",
+                        ingredients: [
+                            "3 eggs",
+                            "10 ml milk",
+                            "10 g butter",
+                            "2 slices whole wheat toast",
+                            "1 g black pepper"
+                        ],
+                        steps: [
+                            "Whisk eggs with milk and a pinch of salt.",
+                            "Melt butter over low heat and add the eggs.",
+                            "Stir gently until softly scrambled.",
+                            "Serve immediately over toasted bread."
+                        ]
+                    }
+                }
+            },
+            toastSandwiches: {
+                label: "Toast & Sandwiches",
+                recipes: {
+                    "Avocado Toast": {
+                        photo: "avoc.jpeg",
+                        description: "Crunchy toast topped with mashed avocado and lemon.",
+                        ingredients: [
+                            "2 slices sourdough bread",
+                            "1 ripe avocado",
+                            "10 ml lemon juice",
+                            "2 g chili flakes",
+                            "2 g salt"
+                        ],
+                        steps: [
+                            "Toast bread slices until crisp and golden.",
+                            "Mash avocado with lemon juice and salt.",
+                            "Spread avocado mixture on warm toast.",
+                            "Top with chili flakes and serve."
+                        ]
+                    },
+                    "Turkey Cheese Sandwich": {
+                        photo: "turkey.jpeg",
+                        description: "Protein-packed sandwich with fresh vegetables.",
+                        ingredients: [
+                            "2 slices whole grain bread",
+                            "70 g turkey slices",
+                            "30 g cheese",
+                            "30 g lettuce",
+                            "15 g tomato"
+                        ],
+                        steps: [
+                            "Toast bread lightly if desired.",
+                            "Layer turkey, cheese, lettuce, and tomato.",
+                            "Close sandwich and press gently.",
+                            "Slice in half and serve."
+                        ]
+                    }
+                }
+            },
+            oatsBowls: {
+                label: "Oats & Bowls",
+                recipes: {
+                    "Berry Oat Bowl": {
+                        photo: "berry.jpeg",
+                        description: "Warm oat bowl with berries and honey.",
+                        ingredients: [
+                            "60 g rolled oats",
+                            "220 ml milk",
+                            "70 g mixed berries",
+                            "10 ml honey",
+                            "8 g chia seeds"
+                        ],
+                        steps: [
+                            "Cook oats in milk on low heat for 5 to 6 minutes.",
+                            "Transfer oats to a serving bowl.",
+                            "Top with berries and chia seeds.",
+                            "Drizzle honey and serve warm."
+                        ]
+                    },
+                    "Yogurt Granola Bowl": {
+                        photo: "yogurt.jpeg",
+                        description: "Quick no-cook bowl with yogurt and granola.",
+                        ingredients: [
+                            "180 g Greek yogurt",
+                            "45 g granola",
+                            "80 g banana slices",
+                            "50 g strawberries",
+                            "8 ml honey"
+                        ],
+                        steps: [
+                            "Add Greek yogurt to a serving bowl.",
+                            "Top with granola, banana, and strawberries.",
+                            "Drizzle a little honey on top.",
+                            "Serve immediately."
+                        ]
+                    }
+                }
+            },
+            pancakesWaffles: {
+                label: "Pancakes & Waffles",
+                recipes: {
+                    "Classic Pancakes": {
+                        photo: "classic.jpeg",
+                        description: "Soft breakfast pancakes with maple syrup.",
+                        ingredients: [
+                            "120 g flour",
+                            "1 egg",
+                            "160 ml milk",
+                            "8 g baking powder",
+                            "15 g butter"
+                        ],
+                        steps: [
+                            "Whisk flour, baking powder, egg, and milk into a batter.",
+                            "Heat a non-stick pan and grease lightly with butter.",
+                            "Pour batter and cook each side until golden.",
+                            "Serve with syrup or fruit."
+                        ]
+                    },
+                    "Cinnamon Waffles": {
+                        photo: "cinnamon.jpeg",
+                        description: "Crisp waffles with cinnamon and vanilla.",
+                        ingredients: [
+                            "130 g flour",
+                            "1 egg",
+                            "170 ml milk",
+                            "4 g cinnamon",
+                            "10 ml vanilla extract"
+                        ],
+                        steps: [
+                            "Whisk all ingredients into a smooth batter.",
+                            "Preheat and grease waffle iron.",
+                            "Cook batter in waffle iron until crisp.",
+                            "Top with fruit or yogurt and serve."
+                        ]
+                    }
+                }
+            }
+        };
+
+        function openRecipePage(recipeName, categoryLabel, recipe) {
+            const params = new URLSearchParams();
+            params.set("title", recipeName);
+            params.set("category", categoryLabel);
+            params.set("ingredients", JSON.stringify(recipe.ingredients || []));
+            params.set("steps", JSON.stringify(recipe.steps || []));
+            if (recipe.photo) {
+                params.set("photo", recipe.photo);
+            }
+            params.set("back", "breakfastrecipes.html?category=" + encodeURIComponent(categoryKey));
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        function renderCategoryRecipes() {
+            const category = breakfastData[categoryKey];
+            if (!category) {
+                categoryTitle.textContent = "Category Not Found";
+                recipeGrid.innerHTML = '<article class="category-card"><h2>No recipes found</h2><p>Please return and choose a valid category.</p></article>';
+                return;
+            }
+
+            categoryTitle.textContent = category.label + " Recipes";
+            recipeGrid.innerHTML = "";
+
+            Object.entries(category.recipes).forEach(function ([name, recipe]) {
+                const card = document.createElement("article");
+                card.className = "category-card";
+                const photo = recipe.photo || "breakfast.jpeg";
+                const description = recipe.description || "Open this recipe to view ingredients and steps.";
+
+                card.innerHTML = ""
+                    + '<span class="meal-photo-icon" aria-hidden="true" style="background-image:url(\'' + photo + '\')"></span>'
+                    + "<h2>" + name + "</h2>"
+                    + "<p>" + description + "</p>"
+                    + '<button type="button" class="action-link">Open Recipe</button>';
+
+                card.querySelector(".action-link").addEventListener("click", function () {
+                    openRecipePage(name, category.label, recipe);
+                });
+
+                recipeGrid.appendChild(card);
+            });
+        }
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        renderCategoryRecipes();
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+

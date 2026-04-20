@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakfast Categories | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page breakfast-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="clickncook.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel breakfast-panel">
+        <h1>Breakfast Categories</h1>
+        <p class="subtitle">Click an icon, then choose a recipe.</p>
+        <a class="action-link" href="clickncook.html">Back to Click N'Cook</a>
+
+        <section class="dessert-icon-grid">
+            <button type="button" class="dessert-icon-btn" data-category="eggMeals">
+                <span class="dessert-icon" aria-hidden="true">&#127859;</span>
+                <span class="dessert-label">Egg Meals</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="toastSandwiches">
+                <span class="dessert-icon" aria-hidden="true">&#129386;</span>
+                <span class="dessert-label">Toast & Sandwiches</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="oatsBowls">
+                <span class="dessert-icon" aria-hidden="true">&#129379;</span>
+                <span class="dessert-label">Oats & Bowls</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="pancakesWaffles">
+                <span class="dessert-icon" aria-hidden="true">&#129374;</span>
+                <span class="dessert-label">Pancakes & Waffles</span>
+            </button>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const iconButtons = document.querySelectorAll(".dessert-icon-btn");
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        iconButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                window.location.href = "breakfastrecipes.html?category=" + encodeURIComponent(button.dataset.category);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+

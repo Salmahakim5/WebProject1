@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Details | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page protein-meals-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a id="back-link" class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel protein-meals-panel">
+        <h1 id="recipe-title">Recipe</h1>
+        <p id="recipe-category" class="subtitle"></p>
+
+        <section class="dessert-card">
+            <div id="recipe-photo-wrap" class="recipe-photo-wrap hidden">
+                <img id="recipe-photo" class="recipe-photo" src="" alt="Recipe photo">
+            </div>
+
+            <h2>Ingredients</h2>
+            <ul id="ingredient-list" class="ingredients-list"></ul>
+
+            <h3 class="recipe-steps-title">Recipe</h3>
+            <ol id="recipe-steps" class="recipe-steps"></ol>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const backLink = document.getElementById("back-link");
+        const recipeTitle = document.getElementById("recipe-title");
+        const recipeCategory = document.getElementById("recipe-category");
+        const recipePhotoWrap = document.getElementById("recipe-photo-wrap");
+        const recipePhoto = document.getElementById("recipe-photo");
+        const ingredientList = document.getElementById("ingredient-list");
+        const recipeSteps = document.getElementById("recipe-steps");
+
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const urlParams = new URLSearchParams(window.location.search);
+
+        function parseList(value) {
+            if (!value) {
+                return [];
+            }
+            try {
+                const parsed = JSON.parse(value);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        const title = urlParams.get("title") || "Recipe";
+        const category = urlParams.get("category") || "";
+        const photo = urlParams.get("photo") || "";
+        const back = urlParams.get("back") || "Homepage.html";
+        const ingredients = parseList(urlParams.get("ingredients"));
+        const steps = parseList(urlParams.get("steps"));
+
+        recipeTitle.textContent = title;
+        recipeCategory.textContent = category ? "Category: " + category : "";
+        backLink.href = back;
+        backLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = back;
+            }
+        });
+
+        if (photo) {
+            recipePhoto.src = photo;
+            recipePhoto.alt = title + " photo";
+            recipePhotoWrap.classList.remove("hidden");
+        }
+
+        ingredientList.innerHTML = "";
+        ingredients.forEach(function (ingredient) {
+            const li = document.createElement("li");
+            li.textContent = ingredient;
+            ingredientList.appendChild(li);
+        });
+
+        recipeSteps.innerHTML = "";
+        if (steps.length > 0) {
+            steps.forEach(function (step) {
+                const li = document.createElement("li");
+                li.textContent = step;
+                recipeSteps.appendChild(li);
+            });
+        } else {
+            const li = document.createElement("li");
+            li.textContent = "Recipe steps are not added yet for this item.";
+            recipeSteps.appendChild(li);
+        }
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+

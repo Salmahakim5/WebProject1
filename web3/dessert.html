@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desserts | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page dessert-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel dessert-panel">
+        <h1>Dessert Categories</h1>
+        <p class="subtitle">Click an icon, then choose a dessert to see its ingredients.</p>
+
+        <section class="dessert-icon-grid">
+            <button type="button" class="dessert-icon-btn" data-category="cakes">
+                <span class="dessert-icon" aria-hidden="true"></span>
+                <span class="dessert-label">Cakes</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="cookies">
+                <span class="dessert-icon" aria-hidden="true">ðŸª</span>
+                <span class="dessert-label">Cookies</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="chilledTreats">
+                <span class="dessert-icon" aria-hidden="true">ðŸ¨</span>
+                <span class="dessert-label">Chilled Treats</span>
+            </button>
+            <button type="button" class="dessert-icon-btn" data-category="sweetBakes">
+                <span class="dessert-icon" aria-hidden="true">ðŸ§</span>
+                <span class="dessert-label">Sweet Bakes</span>
+            </button>
+        </section>
+
+        <section id="recipe-picker" class="dessert-card hidden">
+            <h2 id="category-title"></h2>
+            <p class="subtitle picker-subtitle">Choose a recipe:</p>
+            <div id="recipe-list" class="recipe-list"></div>
+        </section>
+
+        <section id="ingredient-panel" class="dessert-card hidden">
+            <h2 id="recipe-title"></h2>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul id="ingredient-list" class="ingredients-list"></ul>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const iconButtons = document.querySelectorAll(".dessert-icon-btn");
+        const recipePicker = document.getElementById("recipe-picker");
+        const ingredientPanel = document.getElementById("ingredient-panel");
+        const categoryTitle = document.getElementById("category-title");
+        const recipeList = document.getElementById("recipe-list");
+        const recipeTitle = document.getElementById("recipe-title");
+        const ingredientList = document.getElementById("ingredient-list");
+
+        const dessertData = {
+            cakes: {
+                label: "Cakes",
+                recipes: {
+                    "Molten Cake": [
+                        "Dark chocolate",
+                        "Butter",
+                        "Eggs",
+                        "Sugar",
+                        "Flour"
+                    ],
+                    "Cheese Cake": [
+                        "Cream cheese",
+                        "Sugar",
+                        "Eggs",
+                        "Vanilla extract",
+                        "Biscuit crust"
+                    ]
+                }
+            },
+            cookies: {
+                label: "Cookies",
+                recipes: {
+                    "Chocolate Cookies": [
+                        "Flour",
+                        "Cocoa powder",
+                        "Butter",
+                        "Sugar",
+                        "Chocolate chips"
+                    ],
+                    "Cookies Dough": [
+                        "Flour",
+                        "Butter",
+                        "Brown sugar",
+                        "Milk",
+                        "Vanilla extract"
+                    ]
+                }
+            },
+            chilledTreats: {
+                label: "Chilled Treats",
+                recipes: {
+                    "Date & Honey Ice Cream": [
+                        "Dates",
+                        "Honey",
+                        "Milk",
+                        "Cream",
+                        "Vanilla"
+                    ],
+                    "Mango Yogurt Popsicles": [
+                        "Mango",
+                        "Yogurt",
+                        "Honey",
+                        "Lemon juice"
+                    ]
+                }
+            },
+            sweetBakes: {
+                label: "Sweet Bakes",
+                recipes: {
+                    "Banana Bread with Chocolate Chips": [
+                        "Bananas",
+                        "Flour",
+                        "Eggs",
+                        "Butter",
+                        "Chocolate chips"
+                    ],
+                    "Apple Cinnamon Muffins": [
+                        "Apples",
+                        "Flour",
+                        "Sugar",
+                        "Cinnamon",
+                        "Eggs",
+                        "Butter"
+                    ]
+                }
+            }
+        };
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        function renderIngredients(recipeName, ingredients) {
+            recipeTitle.textContent = recipeName;
+            ingredientList.innerHTML = "";
+
+            ingredients.forEach(function (ingredient) {
+                const li = document.createElement("li");
+                li.textContent = ingredient;
+                ingredientList.appendChild(li);
+            });
+
+            ingredientPanel.classList.remove("hidden");
+        }
+
+        function renderRecipes(categoryKey) {
+            const category = dessertData[categoryKey];
+            if (!category) {
+                return;
+            }
+
+            categoryTitle.textContent = category.label;
+            recipeList.innerHTML = "";
+            ingredientPanel.classList.add("hidden");
+
+            Object.entries(category.recipes).forEach(function ([name, ingredients]) {
+                const recipeButton = document.createElement("button");
+                recipeButton.type = "button";
+                recipeButton.className = "recipe-btn";
+                recipeButton.textContent = name;
+                recipeButton.addEventListener("click", function () {
+                    renderIngredients(name, ingredients);
+                });
+                recipeList.appendChild(recipeButton);
+            });
+
+            recipePicker.classList.remove("hidden");
+        }
+
+        iconButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                if (button.dataset.category === "cakes") {
+                    window.location.href = "cakes.html";
+                    return;
+                }
+                if (button.dataset.category === "cookies") {
+                    window.location.href = "cookies.html";
+                    return;
+                }
+                if (button.dataset.category === "chilledTreats") {
+                    window.location.href = "chilledtreats.html";
+                    return;
+                }
+                if (button.dataset.category === "sweetBakes") {
+                    window.location.href = "sweetbakes.html";
+                    return;
+                }
+
+                iconButtons.forEach(function (btn) {
+                    btn.classList.remove("active-icon");
+                });
+
+                button.classList.add("active-icon");
+                renderRecipes(button.dataset.category);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

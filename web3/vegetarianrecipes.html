@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vegetarian Recipes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page vegetarian-meals-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel vegetarian-meals-panel">
+        <h1 id="category-title">Vegetarian Recipes</h1>
+        <p class="subtitle">Choose a recipe card to open full ingredients and steps.</p>
+        <a class="action-link" href="vegetarianmeals.html">Back to Vegetarian Categories</a>
+
+        <section id="recipe-grid" class="category-grid"></section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const categoryTitle = document.getElementById("category-title");
+        const recipeGrid = document.getElementById("recipe-grid");
+
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryKey = urlParams.get("category");
+
+        const vegetarianData = {
+            veggieBowls: {
+                label: "Veggie Bowls",
+                recipes: {
+                    "Rainbow Veggie Bowl": {
+                        photo: "rainbow.jpeg",
+                        description: "Colorful grain bowl with tahini dressing.",
+                        ingredients: [
+                            "250 g cooked brown rice",
+                            "80 g cucumber",
+                            "70 g carrot",
+                            "90 g avocado",
+                            "45 ml tahini sauce"
+                        ],
+                        steps: [
+                            "Cook brown rice and let it cool slightly.",
+                            "Slice cucumber, grate carrot, and cut avocado.",
+                            "Arrange rice and vegetables in a bowl.",
+                            "Drizzle tahini sauce and serve."
+                        ]
+                    },
+                    "Mediterranean Bowl": {
+                        photo: "midt.jpeg",
+                        description: "Fresh quinoa bowl with chickpeas and lemon dressing.",
+                        ingredients: [
+                            "220 g cooked quinoa",
+                            "140 g chickpeas",
+                            "100 g tomatoes",
+                            "80 g cucumber",
+                            "35 ml lemon dressing"
+                        ],
+                        steps: [
+                            "Cook quinoa and cool it for 5 minutes.",
+                            "Rinse chickpeas and chop tomatoes and cucumber.",
+                            "Combine quinoa, chickpeas, and vegetables in a bowl.",
+                            "Add lemon dressing, toss lightly, and serve."
+                        ]
+                    }
+                }
+            },
+            plantProtein: {
+                label: "Plant Protein",
+                recipes: {
+                    "Chickpea Curry": {
+                        photo: "chickpeacurry.jpeg",
+                        description: "Creamy chickpea curry with coconut milk.",
+                        ingredients: [
+                            "250 g chickpeas",
+                            "90 g onion",
+                            "140 g tomatoes",
+                            "8 g curry powder",
+                            "200 ml coconut milk"
+                        ],
+                        steps: [
+                            "Saute onion until soft, then add tomatoes.",
+                            "Stir in curry powder and cook for 1 minute.",
+                            "Add chickpeas and coconut milk and simmer 12 minutes.",
+                            "Adjust seasoning and serve."
+                        ]
+                    },
+                    "Lentil Patties": {
+                        photo: "lentilp.jpeg",
+                        description: "Baked lentil patties with oats and spices.",
+                        ingredients: [
+                            "260 g cooked lentils",
+                            "80 g onion",
+                            "10 g garlic",
+                            "70 g oats",
+                            "6 g mixed spices"
+                        ],
+                        steps: [
+                            "Blend lentils, onion, garlic, and spices into a coarse mix.",
+                            "Add oats and mix until the dough holds shape.",
+                            "Form small patties and place on a tray.",
+                            "Bake at 200 C for 18 minutes or pan-sear until golden."
+                        ]
+                    }
+                }
+            },
+            vegetarianPasta: {
+                label: "Vegetarian Pasta",
+                recipes: {
+                    "Pesto Veggie Pasta": {
+                        photo: "pestovegiepasta.jpeg",
+                        description: "Pesto pasta with sauteed vegetables.",
+                        ingredients: [
+                            "250 g pasta",
+                            "50 g basil pesto",
+                            "120 g zucchini",
+                            "100 g cherry tomatoes",
+                            "35 g parmesan"
+                        ],
+                        steps: [
+                            "Boil pasta until al dente and drain.",
+                            "Saute zucchini and cherry tomatoes for 3 minutes.",
+                            "Mix pasta with pesto and the cooked vegetables.",
+                            "Top with parmesan and serve."
+                        ]
+                    },
+                    "Spinach Alfredo Pasta": {
+                        photo: "spanish.jpeg",
+                        description: "Creamy alfredo pasta with spinach.",
+                        ingredients: [
+                            "250 g pasta",
+                            "120 g spinach",
+                            "180 ml cream",
+                            "10 g garlic",
+                            "35 g parmesan"
+                        ],
+                        steps: [
+                            "Cook pasta and set aside.",
+                            "Saute garlic, then add cream and simmer gently.",
+                            "Stir in spinach until wilted, then add pasta.",
+                            "Finish with parmesan and serve hot."
+                        ]
+                    }
+                }
+            },
+            veggieCurries: {
+                label: "Veggie Curries",
+                recipes: {
+                    "Mixed Vegetable Curry": {
+                        photo: "mixedveg.jpeg",
+                        description: "Hearty mixed-vegetable curry.",
+                        ingredients: [
+                            "180 g potatoes",
+                            "90 g carrot",
+                            "80 g peas",
+                            "140 g tomatoes",
+                            "8 g curry spices"
+                        ],
+                        steps: [
+                            "Saute curry spices with a little oil for 30 seconds.",
+                            "Add potatoes and carrot and cook for 4 minutes.",
+                            "Add peas and tomatoes with 200 ml water and simmer.",
+                            "Cook until vegetables are tender, then serve."
+                        ]
+                    },
+                    "Paneer Curry": {
+                        photo: "paneercurry.jpeg",
+                        description: "Paneer curry with tomato-cream sauce.",
+                        ingredients: [
+                            "220 g paneer",
+                            "140 g tomatoes",
+                            "90 g onion",
+                            "120 ml cream",
+                            "7 g curry spices"
+                        ],
+                        steps: [
+                            "Cook onion and tomatoes until soft.",
+                            "Add curry spices and stir for 1 minute.",
+                            "Add paneer cubes and 150 ml water, then simmer 8 minutes.",
+                            "Stir in cream, cook 2 minutes, and serve hot."
+                        ]
+                    }
+                }
+            }
+        };
+
+        function openRecipePage(recipeName, categoryLabel, recipe) {
+            const params = new URLSearchParams();
+            params.set("title", recipeName);
+            params.set("category", categoryLabel);
+            params.set("ingredients", JSON.stringify(recipe.ingredients || []));
+            params.set("steps", JSON.stringify(recipe.steps || []));
+            if (recipe.photo) {
+                params.set("photo", recipe.photo);
+            }
+            params.set("back", "vegetarianrecipes.html?category=" + encodeURIComponent(categoryKey));
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        function renderCategoryRecipes() {
+            const category = vegetarianData[categoryKey];
+            if (!category) {
+                categoryTitle.textContent = "Category Not Found";
+                recipeGrid.innerHTML = '<article class="category-card"><h2>No recipes found</h2><p>Please return and choose a valid category.</p></article>';
+                return;
+            }
+
+            categoryTitle.textContent = category.label + " Recipes";
+            recipeGrid.innerHTML = "";
+
+            Object.entries(category.recipes).forEach(function ([name, recipe]) {
+                const card = document.createElement("article");
+                card.className = "category-card";
+                const photo = recipe.photo || "vegetarian.jpeg";
+                const description = recipe.description || "Open this recipe to view ingredients and steps.";
+
+                card.innerHTML = ''
+                    + '<span class="meal-photo-icon" aria-hidden="true" style="background-image:url(\'' + photo + '\')"></span>'
+                    + '<h2>' + name + '</h2>'
+                    + '<p>' + description + '</p>'
+                    + '<button type="button" class="action-link">Open Recipe</button>';
+
+                card.querySelector(".action-link").addEventListener("click", function () {
+                    openRecipePage(name, category.label, recipe);
+                });
+
+                recipeGrid.appendChild(card);
+            });
+        }
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        renderCategoryRecipes();
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

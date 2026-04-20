@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chilled Treats | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page dessert-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel cake-panel">
+        <h1>Chilled Treat Recipes</h1>
+        <p class="subtitle">Choose a chilled treat to show its ingredients (grams) and recipe steps.</p>
+
+        <section class="cake-type-list" aria-label="Chilled treat types">
+            <button type="button" class="cake-type-btn chilled-type-btn" data-chilled="dateHoneyIceCream"><span>Date & Honey Ice Cream</span></button>
+            <button type="button" class="cake-type-btn chilled-type-btn" data-chilled="mangoYogurtPopsicles"><span>Mango Yogurt Popsicles</span></button>
+            <button type="button" class="cake-type-btn chilled-type-btn" data-chilled="strawberryMilkshake"><span>Strawberry Milkshake</span></button>
+        </section>
+
+        <section id="chilled-details" class="dessert-card hidden">
+            <h2 id="chilled-name"></h2>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul id="chilled-ingredients" class="ingredients-list"></ul>
+
+            <h3 class="recipe-steps-title">Recipe Steps</h3>
+            <ol id="chilled-steps" class="recipe-steps"></ol>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        const chilledButtons = document.querySelectorAll(".chilled-type-btn");
+        const chilledDetails = document.getElementById("chilled-details");
+        const chilledName = document.getElementById("chilled-name");
+        const chilledIngredients = document.getElementById("chilled-ingredients");
+        const chilledSteps = document.getElementById("chilled-steps");
+
+        const chilledData = {
+            dateHoneyIceCream: {
+                name: "Date & Honey Ice Cream",
+                photo: "dateicecream.jpeg",
+                ingredients: [
+                    "180 g dates, pitted",
+                    "450 g milk",
+                    "200 g heavy cream",
+                    "60 g honey",
+                    "4 g vanilla extract"
+                ],
+                steps: [
+                    "Soak dates in warm milk for 15 minutes.",
+                    "Blend dates with milk until smooth.",
+                    "Add cream, honey, and vanilla and blend again.",
+                    "Chill mixture in the fridge for 1 hour.",
+                    "Churn in an ice cream maker or freeze, stirring every 30 minutes.",
+                    "Freeze until firm, then serve."
+                ]
+            },
+            mangoYogurtPopsicles: {
+                name: "Mango Yogurt Popsicles",
+                photo: "mango.jpeg",
+                ingredients: [
+                    "300 g mango chunks",
+                    "250 g plain yogurt",
+                    "45 g honey",
+                    "10 g lemon juice"
+                ],
+                steps: [
+                    "Blend mango, yogurt, honey, and lemon juice until smooth.",
+                    "Taste and adjust sweetness if needed.",
+                    "Pour into popsicle molds.",
+                    "Insert sticks and freeze for at least 6 hours.",
+                    "Run mold briefly under warm water to release.",
+                    "Serve immediately."
+                ]
+            },
+            strawberryMilkshake: {
+                name: "Strawberry Milkshake",
+                photo: "strawberry.jpeg",
+                ingredients: [
+                    "250 g strawberries",
+                    "300 g milk",
+                    "120 g vanilla ice cream",
+                    "20 g sugar",
+                    "5 g vanilla extract"
+                ],
+                steps: [
+                    "Wash and hull the strawberries.",
+                    "Blend strawberries, milk, ice cream, sugar, and vanilla until creamy.",
+                    "Add a few ice cubes if you want it colder.",
+                    "Blend for 10 more seconds.",
+                    "Pour into chilled glasses.",
+                    "Serve right away."
+                ]
+            }
+        };
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        function openRecipePage(chilledKey) {
+            const selectedChilled = chilledData[chilledKey];
+            if (!selectedChilled) {
+                return;
+            }
+            const params = new URLSearchParams();
+            params.set("title", selectedChilled.name);
+            params.set("category", "Chilled Treats");
+            params.set("ingredients", JSON.stringify(selectedChilled.ingredients || []));
+            params.set("steps", JSON.stringify(selectedChilled.steps || []));
+            if (selectedChilled.photo) {
+                params.set("photo", selectedChilled.photo);
+            }
+            params.set("back", "chilledtreats.html");
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        chilledButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                openRecipePage(button.dataset.chilled);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

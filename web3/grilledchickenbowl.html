@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grilled Chicken Bowl | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page protein-meals-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel protein-meals-panel">
+        <h1>Grilled Chicken Bowl</h1>
+        <p class="subtitle">Ingredients and recipe steps.</p>
+
+        <section class="dessert-card">
+            <div class="recipe-photo-wrap">
+                <img class="recipe-photo" src="chicken2.jpeg" alt="Grilled Chicken Bowl photo">
+            </div>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul class="ingredients-list">
+                <li>200 g chicken breast</li>
+                <li>15 ml olive oil</li>
+                <li>10 g garlic</li>
+                <li>250 g cooked rice</li>
+                <li>150 g mixed vegetables</li>
+            </ul>
+
+            <h3 class="recipe-steps-title">Recipe Steps</h3>
+            <ol class="recipe-steps">
+                <li>Season chicken with salt, pepper, and olive oil.</li>
+                <li>Grill chicken until fully cooked, then slice.</li>
+                <li>Cook rice and steam mixed vegetables.</li>
+                <li>Assemble rice, vegetables, and chicken in a bowl.</li>
+            </ol>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Bakes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page dessert-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel cake-panel">
+        <h1>Sweet Bakes Recipes</h1>
+        <p class="subtitle">Choose a sweet bake to show its ingredients (grams) and recipe steps.</p>
+
+        <section class="cake-type-list" aria-label="Sweet bake types">
+            <button type="button" class="cake-type-btn sweet-type-btn" data-sweet="bananaBread"><span>Banana Bread</span></button>
+            <button type="button" class="cake-type-btn sweet-type-btn" data-sweet="appleMuffins"><span>Apple Cinnamon Muffins</span></button>
+            <button type="button" class="cake-type-btn sweet-type-btn" data-sweet="chocolateBrownies"><span>Chocolate Brownies</span></button>
+        </section>
+
+        <section id="sweet-details" class="dessert-card hidden">
+            <h2 id="sweet-name"></h2>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul id="sweet-ingredients" class="ingredients-list"></ul>
+
+            <h3 class="recipe-steps-title">Recipe Steps</h3>
+            <ol id="sweet-steps" class="recipe-steps"></ol>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        const sweetButtons = document.querySelectorAll(".sweet-type-btn");
+        const sweetDetails = document.getElementById("sweet-details");
+        const sweetName = document.getElementById("sweet-name");
+        const sweetIngredients = document.getElementById("sweet-ingredients");
+        const sweetSteps = document.getElementById("sweet-steps");
+
+        const sweetData = {
+            bananaBread: {
+                name: "Banana Bread",
+                photo: "banana.jpeg",
+                ingredients: [
+                    "300 g ripe bananas, mashed",
+                    "220 g all-purpose flour",
+                    "120 g butter, melted",
+                    "150 g brown sugar",
+                    "2 eggs (about 100 g)",
+                    "5 g baking soda",
+                    "3 g cinnamon",
+                    "2 g salt"
+                ],
+                steps: [
+                    "Preheat oven to 175 C and grease a loaf pan.",
+                    "Mix mashed bananas with melted butter and sugar.",
+                    "Beat in eggs until combined.",
+                    "Stir in flour, baking soda, cinnamon, and salt.",
+                    "Pour batter into loaf pan.",
+                    "Bake for 50 to 60 minutes and cool before slicing."
+                ]
+            },
+            appleMuffins: {
+                name: "Apple Cinnamon Muffins",
+                photo: "muffins.jpeg",
+                ingredients: [
+                    "220 g all-purpose flour",
+                    "120 g sugar",
+                    "8 g baking powder",
+                    "3 g cinnamon",
+                    "2 g salt",
+                    "2 eggs (about 100 g)",
+                    "180 g milk",
+                    "60 g butter, melted",
+                    "180 g apples, diced"
+                ],
+                steps: [
+                    "Preheat oven to 180 C and line a muffin tray.",
+                    "Combine flour, sugar, baking powder, cinnamon, and salt.",
+                    "Whisk eggs, milk, and melted butter in another bowl.",
+                    "Mix wet and dry ingredients just until combined.",
+                    "Fold in diced apples and fill muffin cups.",
+                    "Bake for 20 to 24 minutes until golden."
+                ]
+            },
+            chocolateBrownies: {
+                name: "Chocolate Brownies",
+                photo: "chocolatebrownies.jpeg",
+                ingredients: [
+                    "180 g dark chocolate",
+                    "120 g butter",
+                    "180 g sugar",
+                    "2 eggs (about 100 g)",
+                    "90 g all-purpose flour",
+                    "20 g cocoa powder",
+                    "2 g salt"
+                ],
+                steps: [
+                    "Preheat oven to 175 C and line a square pan.",
+                    "Melt chocolate and butter together, then cool slightly.",
+                    "Whisk in sugar and eggs until glossy.",
+                    "Fold in flour, cocoa powder, and salt.",
+                    "Spread batter in pan evenly.",
+                    "Bake for 22 to 26 minutes and cool before cutting."
+                ]
+            }
+        };
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        function openRecipePage(sweetKey) {
+            const selectedSweet = sweetData[sweetKey];
+            if (!selectedSweet) {
+                return;
+            }
+            const params = new URLSearchParams();
+            params.set("title", selectedSweet.name);
+            params.set("category", "Sweet Bakes");
+            params.set("ingredients", JSON.stringify(selectedSweet.ingredients || []));
+            params.set("steps", JSON.stringify(selectedSweet.steps || []));
+            if (selectedSweet.photo) {
+                params.set("photo", selectedSweet.photo);
+            }
+            params.set("back", "sweetbakes.html");
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        sweetButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                openRecipePage(button.dataset.sweet);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

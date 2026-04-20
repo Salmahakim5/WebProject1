@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page login-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel form-panel">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Sign in to continue</p>
+        <p id="login-success" class="success-msg hidden">Account created successfully. Please login.</p>
+
+        <form id="login-form">
+            <label for="login-email">Email</label>
+            <input id="login-email" type="email" placeholder="you@example.com" required>
+
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" placeholder="Enter your password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p class="helper-text">Don't have an account? <a href="signup.html">Create one</a></p>
+    </main>
+
+    <script>
+        const loginForm = document.getElementById("login-form");
+        const emailInput = document.getElementById("login-email");
+        const passwordInput = document.getElementById("login-password");
+        const params = new URLSearchParams(window.location.search);
+        const loginSuccess = document.getElementById("login-success");
+        const loginError = document.createElement("p");
+        loginError.className = "error-msg hidden";
+        loginError.textContent = "Invalid email or password.";
+        loginForm.parentElement.insertBefore(loginError, loginForm);
+
+        function getUsers() {
+            try {
+                return JSON.parse(localStorage.getItem("rrUsers")) || {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        if (params.get("registered") === "1") {
+            loginSuccess.classList.remove("hidden");
+        }
+
+        loginForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            const users = getUsers();
+            const user = users[email];
+
+            if (!user || user.password !== password) {
+                loginError.classList.remove("hidden");
+                return;
+            }
+
+            loginError.classList.add("hidden");
+            localStorage.setItem("isLoggedIn", "1");
+            localStorage.setItem("currentUserEmail", email);
+            localStorage.setItem("username", (user.fullName || "User").split(/\s+/)[0] || "User");
+            localStorage.setItem("preferredLanguage", user.language || "en");
+            window.location.href = "Homepage.html";
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+

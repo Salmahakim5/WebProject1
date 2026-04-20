@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cakes | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page dessert-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel cake-panel">
+        <h1>Cake Recipes</h1>
+        <p class="subtitle">Choose a cake type to show its ingredients (grams) and recipe steps.</p>
+
+        <section class="cake-type-list" aria-label="Cake types">
+            <button type="button" class="cake-type-btn" data-cake="chocolateCake"><span>Chocolate Cake</span></button>
+            <button type="button" class="cake-type-btn" data-cake="vanillaSponge"><span>Vanilla Sponge Cake</span></button>
+            <button type="button" class="cake-type-btn" data-cake="redVelvet"><span>Red Velvet Cake</span></button>
+        </section>
+
+        <section id="cake-details" class="dessert-card hidden">
+            <h2 id="cake-name"></h2>
+            <p class="subtitle picker-subtitle">Ingredients:</p>
+            <ul id="cake-ingredients" class="ingredients-list"></ul>
+
+            <h3 class="recipe-steps-title">Recipe Steps</h3>
+            <ol id="cake-steps" class="recipe-steps"></ol>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        const cakeButtons = document.querySelectorAll(".cake-type-btn");
+
+        const cakeData = {
+            chocolateCake: {
+                name: "Chocolate Cake",
+                photo: "chocolate.jpeg",
+                ingredients: [
+                    "200 g all-purpose flour",
+                    "60 g cocoa powder",
+                    "250 g sugar",
+                    "10 g baking powder",
+                    "2 g salt",
+                    "2 eggs (about 100 g)",
+                    "120 g vegetable oil",
+                    "240 g milk",
+                    "5 g vanilla extract",
+                    "150 g hot water"
+                ],
+                steps: [
+                    "Preheat oven to 180 C and line a 22 cm cake pan.",
+                    "Whisk flour, cocoa powder, sugar, baking powder, and salt in a large bowl.",
+                    "Add eggs, oil, milk, and vanilla, then whisk until smooth.",
+                    "Mix in hot water slowly until batter is smooth.",
+                    "Bake for 30 to 35 minutes until a toothpick comes out clean.",
+                    "Cool before slicing and serving."
+                ]
+            },
+            vanillaSponge: {
+                name: "Vanilla Sponge Cake",
+                photo: "vanillasponge.jpeg",
+                ingredients: [
+                    "220 g all-purpose flour",
+                    "200 g sugar",
+                    "12 g baking powder",
+                    "3 g salt",
+                    "3 eggs (about 150 g)",
+                    "120 g butter, melted",
+                    "180 g milk",
+                    "6 g vanilla extract"
+                ],
+                steps: [
+                    "Preheat oven to 175 C and grease a 20 cm pan.",
+                    "Beat eggs and sugar until pale and fluffy.",
+                    "Fold in flour, baking powder, and salt.",
+                    "Add butter, milk, and vanilla and mix gently.",
+                    "Bake for 28 to 32 minutes until golden.",
+                    "Cool completely before frosting."
+                ]
+            },
+            redVelvet: {
+                name: "Red Velvet Cake",
+                photo: "redvelvet.jpeg",
+                ingredients: [
+                    "240 g all-purpose flour",
+                    "15 g cocoa powder",
+                    "300 g sugar",
+                    "5 g baking soda",
+                    "3 g salt",
+                    "2 eggs (about 100 g)",
+                    "240 g buttermilk",
+                    "120 g vegetable oil",
+                    "10 g white vinegar",
+                    "5 g vanilla extract",
+                    "5 g red food coloring gel"
+                ],
+                steps: [
+                    "Preheat oven to 175 C and prepare two 20 cm pans.",
+                    "Mix dry ingredients in one bowl.",
+                    "Whisk wet ingredients in another bowl.",
+                    "Combine both mixtures until smooth.",
+                    "Bake for 25 to 30 minutes.",
+                    "Cool fully before adding frosting."
+                ]
+            }
+        };
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+
+        function openRecipePage(cakeKey) {
+            const selectedCake = cakeData[cakeKey];
+            if (!selectedCake) {
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.set("title", selectedCake.name);
+            params.set("category", "Cakes");
+            params.set("ingredients", JSON.stringify(selectedCake.ingredients || []));
+            params.set("steps", JSON.stringify(selectedCake.steps || []));
+            if (selectedCake.photo) {
+                params.set("photo", selectedCake.photo);
+            }
+            params.set("back", "cakes.html");
+            window.location.href = "recipe-details.html?" + params.toString();
+        }
+
+        cakeButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                openRecipePage(button.dataset.cake);
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

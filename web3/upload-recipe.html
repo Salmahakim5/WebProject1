@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Recipe | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page upload-recipe-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="account.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel upload-recipe-panel">
+        <h1>Upload Your Recipe</h1>
+        <p class="subtitle">Add your own recipe and keep it in your personal account.</p>
+        <p id="upload-success" class="success-msg hidden">Recipe uploaded successfully.</p>
+        <p id="upload-error" class="error-msg hidden">Please complete all required fields.</p>
+
+        <form id="upload-form">
+            <div class="upload-form-grid">
+                <div>
+                    <label for="recipe-title">Recipe Title</label>
+                    <input id="recipe-title" type="text" placeholder="e.g. Garlic Chicken Pasta" required>
+                </div>
+                <div>
+                    <label for="recipe-category">Category</label>
+                    <select id="recipe-category" required>
+                        <option value="">Choose a category</option>
+                        <option value="dessert">Dessert</option>
+                        <option value="main-dishes">Main Dishes</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="drinks">Drinks</option>
+                        <option value="protein-meals">Protein Meals</option>
+                        <option value="pasta-rice">Pasta & Rice</option>
+                        <option value="soups-stews">Soups & Stews</option>
+                        <option value="vegetarian-meals">Vegetarian Meals</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="recipe-subcategory">Subcategory</label>
+                    <select id="recipe-subcategory" required disabled>
+                        <option value="">Choose category first</option>
+                    </select>
+                </div>
+                <div class="full-row">
+                    <label for="recipe-ingredients">Ingredients</label>
+                    <textarea id="recipe-ingredients" class="recipe-textarea" placeholder="Write ingredients separated by commas or lines." required></textarea>
+                </div>
+                <div class="full-row">
+                    <label for="recipe-steps">Steps</label>
+                    <textarea id="recipe-steps" class="recipe-textarea" placeholder="Write cooking steps." required></textarea>
+                </div>
+                <div class="full-row">
+                    <label for="recipe-photo">Recipe Photo (Optional)</label>
+                    <input id="recipe-photo" type="file" accept="image/*">
+                    <p class="upload-help">Tip: square or landscape images look best.</p>
+                </div>
+            </div>
+            <button type="submit">Save Recipe</button>
+        </form>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const uploadForm = document.getElementById("upload-form");
+        const uploadSuccess = document.getElementById("upload-success");
+        const uploadError = document.getElementById("upload-error");
+        const titleInput = document.getElementById("recipe-title");
+        const categoryInput = document.getElementById("recipe-category");
+        const subcategoryInput = document.getElementById("recipe-subcategory");
+        const ingredientsInput = document.getElementById("recipe-ingredients");
+        const stepsInput = document.getElementById("recipe-steps");
+        const photoInput = document.getElementById("recipe-photo");
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const categoryOptionsMap = {
+            "dessert": [
+                { key: "cakes", label: "Cakes", targetUrl: "cakes.html" },
+                { key: "cookies", label: "Cookies", targetUrl: "cookies.html" },
+                { key: "chilledTreats", label: "Chilled Treats", targetUrl: "chilledtreats.html" },
+                { key: "sweetBakes", label: "Sweet Bakes", targetUrl: "sweetbakes.html" }
+            ],
+            "main-dishes": [
+                { key: "proteinMeals", label: "Protein Meals", targetUrl: "proteinmeals.html" },
+                { key: "pastaRice", label: "Pasta & Rice", targetUrl: "pastarice.html" },
+                { key: "soupsStews", label: "Soups & Stews", targetUrl: "soupsstews.html" },
+                { key: "vegetarian", label: "Vegetarian", targetUrl: "vegetarianmeals.html" }
+            ],
+            "protein-meals": [
+                { key: "chickenMeals", label: "Chicken Meals", targetUrl: "chickenmeals.html" },
+                { key: "seafoodMeals", label: "Seafood Meals", targetUrl: "seafoodmeals.html" },
+                { key: "beefMeals", label: "Beef Meals", targetUrl: "beefmeals.html" },
+                { key: "highProteinBowls", label: "Protein Bowls", targetUrl: "proteinbowls.html" }
+            ],
+            "pasta-rice": [
+                { key: "pastaCreamy", label: "Creamy Pasta", targetUrl: "pastarice.html?category=pastaCreamy" },
+                { key: "pastaTomato", label: "Tomato Pasta", targetUrl: "pastarice.html?category=pastaTomato" },
+                { key: "riceFried", label: "Fried Rice", targetUrl: "pastarice.html?category=riceFried" },
+                { key: "riceBowls", label: "Rice Bowls", targetUrl: "pastarice.html?category=riceBowls" }
+            ],
+            "soups-stews": [
+                { key: "lightSoups", label: "Light Soups", targetUrl: "soupsstews.html?category=lightSoups" },
+                { key: "heartyStews", label: "Hearty Stews", targetUrl: "soupsstews.html?category=heartyStews" },
+                { key: "creamSoups", label: "Cream Soups", targetUrl: "soupsstews.html?category=creamSoups" },
+                { key: "beanLentilSoups", label: "Bean & Lentil", targetUrl: "soupsstews.html?category=beanLentilSoups" }
+            ],
+            "vegetarian-meals": [
+                { key: "veggieBowls", label: "Veggie Bowls", targetUrl: "vegetarianrecipes.html?category=veggieBowls" },
+                { key: "plantProtein", label: "Plant Protein", targetUrl: "vegetarianrecipes.html?category=plantProtein" },
+                { key: "vegetarianPasta", label: "Vegetarian Pasta", targetUrl: "vegetarianrecipes.html?category=vegetarianPasta" },
+                { key: "veggieCurries", label: "Veggie Curries", targetUrl: "vegetarianrecipes.html?category=veggieCurries" }
+            ],
+            "breakfast": [
+                { key: "eggMeals", label: "Egg Meals", targetUrl: "breakfastrecipes.html?category=eggMeals" },
+                { key: "toastSandwiches", label: "Toast & Sandwiches", targetUrl: "breakfastrecipes.html?category=toastSandwiches" },
+                { key: "oatsBowls", label: "Oats & Bowls", targetUrl: "breakfastrecipes.html?category=oatsBowls" },
+                { key: "pancakesWaffles", label: "Pancakes & Waffles", targetUrl: "breakfastrecipes.html?category=pancakesWaffles" }
+            ],
+            "drinks": [
+                { key: "hotDrinks", label: "Hot Drinks", targetUrl: "drinksrecipes.html?category=hotDrinks" },
+                { key: "coldDrinks", label: "Cold Drinks", targetUrl: "drinksrecipes.html?category=coldDrinks" },
+                { key: "smoothies", label: "Smoothies", targetUrl: "drinksrecipes.html?category=smoothies" },
+                { key: "mocktails", label: "Mocktails", targetUrl: "drinksrecipes.html?category=mocktails" }
+            ]
+        };
+
+        function populateSubcategories(categoryKey) {
+            const options = categoryOptionsMap[categoryKey] || [];
+            subcategoryInput.innerHTML = "";
+
+            if (!options.length) {
+                subcategoryInput.disabled = true;
+                subcategoryInput.innerHTML = '<option value="">Choose category first</option>';
+                return;
+            }
+
+            subcategoryInput.disabled = false;
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Choose subcategory";
+            subcategoryInput.appendChild(placeholder);
+
+            options.forEach(function (item) {
+                const option = document.createElement("option");
+                option.value = item.key;
+                option.textContent = item.label;
+                option.dataset.targetUrl = item.targetUrl;
+                subcategoryInput.appendChild(option);
+            });
+        }
+
+        function getUsers() {
+            try {
+                return JSON.parse(localStorage.getItem("rrUsers")) || {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem("rrUsers", JSON.stringify(users));
+        }
+
+        function getCurrentUserData() {
+            const users = getUsers();
+            const email = (localStorage.getItem("currentUserEmail") || "").toLowerCase();
+            if (!email || !users[email]) {
+                return null;
+            }
+            return {
+                email: email,
+                user: users[email],
+                users: users
+            };
+        }
+
+        function getFirstName(fullName) {
+            return (fullName || "User").trim().split(/\s+/)[0] || "User";
+        }
+
+        const current = getCurrentUserData();
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        if (!isLoggedIn || !current) {
+            window.location.href = "login.html";
+        } else {
+            brandName.textContent = getFirstName(current.user.fullName);
+        }
+
+        categoryInput.addEventListener("change", function () {
+            populateSubcategories(categoryInput.value.trim());
+        });
+        populateSubcategories("");
+
+        function prefillFromQuery() {
+            const prefTitle = urlParams.get("title") || "";
+            const prefCategoryKey = urlParams.get("categoryKey") || "";
+            const prefSubcategoryKey = urlParams.get("subcategoryKey") || "";
+            const prefIngredients = urlParams.get("ingredients") || "";
+            const prefSteps = urlParams.get("steps") || "";
+
+            if (prefTitle) {
+                titleInput.value = prefTitle;
+            }
+
+            if (prefCategoryKey) {
+                categoryInput.value = prefCategoryKey;
+                populateSubcategories(prefCategoryKey);
+            }
+
+            if (prefSubcategoryKey) {
+                subcategoryInput.value = prefSubcategoryKey;
+            }
+
+            if (prefIngredients) {
+                try {
+                    const parsedIngredients = JSON.parse(prefIngredients);
+                    ingredientsInput.value = Array.isArray(parsedIngredients) ? parsedIngredients.join("\n") : prefIngredients;
+                } catch (error) {
+                    ingredientsInput.value = prefIngredients;
+                }
+            }
+
+            if (prefSteps) {
+                try {
+                    const parsedSteps = JSON.parse(prefSteps);
+                    stepsInput.value = Array.isArray(parsedSteps) ? parsedSteps.join("\n") : prefSteps;
+                } catch (error) {
+                    stepsInput.value = prefSteps;
+                }
+            }
+        }
+
+        prefillFromQuery();
+
+        function persistRecipe(photoDataUrl) {
+            const currentAccount = getCurrentUserData();
+            if (!currentAccount) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const title = titleInput.value.trim();
+            const categoryKey = categoryInput.value.trim();
+            const categoryLabel = categoryInput.options[categoryInput.selectedIndex]
+                ? categoryInput.options[categoryInput.selectedIndex].text
+                : "";
+            const subcategoryKey = subcategoryInput.value.trim();
+            const selectedSubcategoryOption = subcategoryInput.options[subcategoryInput.selectedIndex];
+            const subcategoryLabel = selectedSubcategoryOption ? selectedSubcategoryOption.text : "";
+            const subcategoryTargetUrl = selectedSubcategoryOption ? (selectedSubcategoryOption.dataset.targetUrl || "") : "";
+            const ingredients = ingredientsInput.value.trim();
+            const steps = stepsInput.value.trim();
+
+            if (!title || !categoryKey || !subcategoryKey || !ingredients || !steps) {
+                uploadError.textContent = "Please complete all required fields.";
+                uploadError.classList.remove("hidden");
+                uploadSuccess.classList.add("hidden");
+                return;
+            }
+
+            const users = currentAccount.users;
+            if (!Array.isArray(users[currentAccount.email].recipes)) {
+                users[currentAccount.email].recipes = [];
+            }
+
+            users[currentAccount.email].recipes.unshift({
+                id: Date.now(),
+                title: title,
+                categoryKey: categoryKey,
+                category: categoryLabel,
+                subcategoryKey: subcategoryKey,
+                subcategory: subcategoryLabel,
+                subcategoryTargetUrl: subcategoryTargetUrl,
+                ingredients: ingredients,
+                steps: steps,
+                photo: photoDataUrl || ""
+            });
+
+            saveUsers(users);
+            uploadError.classList.add("hidden");
+            uploadSuccess.classList.remove("hidden");
+            uploadForm.reset();
+            populateSubcategories("");
+        }
+
+        uploadForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const file = photoInput.files && photoInput.files[0];
+            if (!file) {
+                persistRecipe("");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (loadEvent) {
+                persistRecipe(String(loadEvent.target.result || ""));
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

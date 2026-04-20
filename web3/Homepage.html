@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page home-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="active" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel home-panel">
+        <h1>Welcome to RecipeRadar</h1>
+        <p class="subtitle">Choose an option below</p>
+
+        <div class="home-actions">
+            <button type="button" class="home-button" onclick="window.location.href='report.html'">Report Issue</button>
+            <button type="button" class="home-button" onclick="window.location.href='contact.html'">Contact Us</button>
+            <button type="button" class="home-button" onclick="window.location.href='feedback.html'">Feedback</button>
+            <button type="button" class="home-button" onclick="window.location.href='clickncook.html'">Click N'Cook</button>
+        </div>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (!isLoggedIn) {
+            window.location.href = "login.html";
+        }
+
+        const logoutLink = document.getElementById("logout-link");
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicken Meals | RecipeRadar</title>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="page protein-meals-page">
+    <nav class="top-nav">
+        <div id="brand-name" class="brand">RecipeRadar</div>
+        <div class="menu">
+            <a class="back-icon-btn" href="Homepage.html" aria-label="Go back" title="Go back" onclick="if(window.history.length > 1){ window.history.back(); return false; }">&#8592;</a>
+            <a id="home-link" class="hidden" href="Homepage.html">Home</a>
+                        <button type="button" class="hamburger-btn" aria-label="Open menu" title="Menu">&#9776;</button>
+            <div class="hamburger-menu">
+                <span class="menu-account-item">Account</span>
+                <a id="logout-link" class="hidden logout-item" href="#"><span aria-hidden="true">&#128274;</span> Logout</a>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel protein-meals-panel">
+        <h1>Chicken Meals</h1>
+        <p class="subtitle">Choose a chicken recipe page.</p>
+        <a class="action-link" href="proteinmeals.html">Back to Protein Categories</a>
+
+        <section class="category-grid">
+            <article class="category-card grilled-chicken-bowl-card">
+                <span class="meal-photo-icon grilled-chicken-icon" aria-hidden="true"></span>
+                <h2>Grilled Chicken Bowl</h2>
+                <p>High-protein bowl with grilled chicken and vegetables.</p>
+                <a class="action-link" href="grilledchickenbowl.html">Open Recipe</a>
+            </article>
+
+            <article class="category-card lemon-herb-chicken-card">
+                <span class="meal-photo-icon lemon-herb-icon" aria-hidden="true"></span>
+                <h2>Lemon Herb Chicken</h2>
+                <p>Oven-baked chicken with lemon, herbs, and potatoes.</p>
+                <a class="action-link" href="lemonherbchicken.html">Open Recipe</a>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const brandName = document.getElementById("brand-name");
+        const homeLink = document.getElementById("home-link");
+        const logoutLink = document.getElementById("logout-link");
+        const savedUsername = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "1";
+
+        if (isLoggedIn && savedUsername) {
+            brandName.textContent = savedUsername;
+            const accountItem = document.querySelector(".menu-account-item");
+            if (accountItem) {
+                accountItem.textContent = "Account: " + savedUsername;
+            }
+        }
+
+        if (isLoggedIn) {
+            homeLink.classList.remove("hidden");
+            logoutLink.classList.remove("hidden");
+        }
+
+        logoutLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "login.html";
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
